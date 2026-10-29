@@ -1,0 +1,8 @@
+{
+  "name": "Supriya | Yoga & Lifestyle Creator",
+  "description": "Premium personal brand, yoga coaching hub, and lifestyle creator portfolio for Supriya.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
