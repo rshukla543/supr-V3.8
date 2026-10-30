@@ -9,6 +9,8 @@ import {
   NewsletterSubscriber,
   SiteSettings,
   Testimonial,
+  BrandSponsor,
+  DailyIntention,
 } from '../types';
 import {
   X,
@@ -61,6 +63,11 @@ import {
   toggleTestimonialApproval,
   deleteTestimonial,
   submitTestimonial,
+  getBrandSponsors,
+  upsertBrandSponsor,
+  deleteBrandSponsor,
+  getDailyIntention,
+  updateDailyIntention,
 } from '../lib/supabase';
 
 interface AdminDashboardProps {
@@ -74,6 +81,8 @@ interface AdminDashboardProps {
   subscribers: NewsletterSubscriber[];
   siteSettings: SiteSettings;
   testimonials: Testimonial[];
+  sponsors?: BrandSponsor[];
+  dailyIntention?: DailyIntention;
   onRefreshData: () => void;
 }
 
@@ -100,6 +109,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   subscribers,
   siteSettings,
   testimonials,
+  sponsors = [],
+  dailyIntention,
   onRefreshData,
 }) => {
   // 1-Click Client Preview Auth State
@@ -126,12 +137,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [logoUrl, setLogoUrl] = useState(siteSettings.logoUrl || '');
   const [bioQuote, setBioQuote] = useState(siteSettings.bioQuote);
   const [bioStory, setBioStory] = useState(siteSettings.bioStory);
-  const [managementEmail, setManagementEmail] = useState('management@supriyawellness.com');
-  const [instagramHandle, setInstagramHandle] = useState('@supriyawellness');
-  const [youtubeChannel, setYoutubeChannel] = useState('SupriyaSomaticYoga');
+  const [managementEmail, setManagementEmail] = useState(siteSettings.managementEmail || 'management@supriyabhavsar.com');
+  const [instagramHandle, setInstagramHandle] = useState(siteSettings.instagramHandle || '@supriya_9508');
+  const [youtubeChannel, setYoutubeChannel] = useState(siteSettings.youtubeChannel || '@supriyabhavsar_yoga');
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
-  // 3. Testimonials Tab State
+  // 3. Brand Sponsors State
+  const [sponsorsList, setSponsorsList] = useState<BrandSponsor[]>(sponsors || []);
+  const [editingSponsor, setEditingSponsor] = useState<BrandSponsor | null>(null);
+  const [sponsorName, setSponsorName] = useState('');
+  const [sponsorTagline, setSponsorTagline] = useState('');
+  const [sponsorCategory, setSponsorCategory] = useState('');
+  const [sponsorLogoUrl, setSponsorLogoUrl] = useState('');
+  const [sponsorAffiliateUrl, setSponsorAffiliateUrl] = useState('');
+  const [sponsorOrder, setSponsorOrder] = useState<number>(1);
+  const [isUploadingSponsorLogo, setIsUploadingSponsorLogo] = useState(false);
+
+  // 4. Daily Intention State
+  const [dailyIntentionState, setDailyIntentionState] = useState<DailyIntention | null>(dailyIntention || null);
+  const [intentionQuote, setIntentionQuote] = useState(dailyIntention?.quoteText || 'The breath is the bridge which connects life to consciousness, uniting the body and the mind in pure stillness.');
+  const [intentionTheme, setIntentionTheme] = useState(dailyIntention?.theme || 'Sthira Sukham Asanam (Steadiness and Ease)');
+  const [intentionSanskritWord, setIntentionSanskritWord] = useState(dailyIntention?.sanskritWord || 'Prana & Dharana');
+  const [intentionSanskritMeaning, setIntentionSanskritMeaning] = useState(dailyIntention?.sanskritMeaning || 'Life-force breath & steady focus');
+  const [isSavingIntention, setIsSavingIntention] = useState(false);
+
+  // 5. Vault Subtab State
+  const [vaultSubtab, setVaultSubtab] = useState<'videos' | 'reels'>('videos');
+
+  // 6. Testimonials Tab State
   const [testimonialFilter, setTestimonialFilter] = useState<'all' | 'pending' | 'approved'>('all');
   const [newTestimonialName, setNewTestimonialName] = useState('');
   const [newTestimonialEmail, setNewTestimonialEmail] = useState('');
@@ -142,18 +175,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [isUploadingTestimonialPhoto, setIsUploadingTestimonialPhoto] = useState(false);
   const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
 
-  // 4. Video Form State
+  // 7. Video Form State
   const [editingVideo, setEditingVideo] = useState<VideoContent | null>(null);
   const [newVideoTitle, setNewVideoTitle] = useState('');
   const [newVideoCategory, setNewVideoCategory] = useState<'Yoga (YouTube)' | 'Lifestyle Vlogs'>('Yoga (YouTube)');
   const [newVideoDuration, setNewVideoDuration] = useState('20:00');
   const [newVideoViews, setNewVideoViews] = useState('100K views');
-  const [newVideoUrl, setNewVideoUrl] = useState('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+  const [newVideoUrl, setNewVideoUrl] = useState('https://www.youtube.com/watch?v=sTANio_2E0Q');
   const [newVideoDesc, setNewVideoDesc] = useState('');
   const [newVideoCustomThumbnail, setNewVideoCustomThumbnail] = useState('');
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
 
-  // 5. Reel Form State
+  // 8. Reel Form State
   const [editingReel, setEditingReel] = useState<InstagramReel | null>(null);
   const [newReelPose, setNewReelPose] = useState('');
   const [newReelCaption, setNewReelCaption] = useState('');
@@ -162,7 +195,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newReelDuration, setNewReelDuration] = useState('0:45');
   const [newReelUrl, setNewReelUrl] = useState('https://www.instagram.com/reel/C-xyz123/');
 
-  // 6. Service Form State
+  // 9. Service Form State
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [serviceTitle, setServiceTitle] = useState('');
   const [serviceSubtitle, setServiceSubtitle] = useState('');
@@ -171,7 +204,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [serviceDesc, setServiceDesc] = useState('');
   const [serviceFeatures, setServiceFeatures] = useState('');
 
-  // 7. Gallery Form State (with direct Supabase Storage upload)
+  // 10. Gallery Form State (with direct Supabase Storage upload)
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [galleryTitle, setGalleryTitle] = useState('');
   const [galleryFolder, setGalleryFolder] = useState<'Asana & Flow' | 'Studio & Space' | 'Travel & Retreats' | 'Casual & Lifestyle'>('Asana & Flow');
@@ -182,13 +215,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Sync settings whenever props update
   useEffect(() => {
     setHeadline(siteSettings.headline);
-    setSubtext(siteSettings.subtext);
+    subtext && setSubtext(siteSettings.subtext);
     setHeroBadge(siteSettings.heroBadge);
     setBioQuote(siteSettings.bioQuote);
     setBioStory(siteSettings.bioStory);
     setLogoUrl(siteSettings.logoUrl || '');
     setHeroPortraitUrl(siteSettings.heroPortraitUrl || '');
-  }, [siteSettings]);
+    if (sponsors && sponsors.length > 0) setSponsorsList(sponsors);
+    if (dailyIntention) {
+      setDailyIntentionState(dailyIntention);
+      setIntentionQuote(dailyIntention.quoteText);
+      if (dailyIntention.theme) setIntentionTheme(dailyIntention.theme);
+      if (dailyIntention.sanskritWord) setIntentionSanskritWord(dailyIntention.sanskritWord);
+      if (dailyIntention.sanskritMeaning) setIntentionSanskritMeaning(dailyIntention.sanskritMeaning);
+    }
+  }, [siteSettings, sponsors, dailyIntention]);
 
   if (!isOpen) return null;
 
@@ -278,10 +319,87 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       logoUrl: logoUrl || undefined,
       bioQuote,
       bioStory,
+      managementEmail,
+      instagramHandle,
+      youtubeChannel,
     };
     await updateSiteSettings(updated);
     onRefreshData();
     showNotification('Site settings, global logo & bio saved to Supabase!');
+  };
+
+  // BRAND SPONSORS HANDLERS
+  const handleUploadSponsorLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingSponsorLogo(true);
+    try {
+      const url = await uploadMediaFile(file, 'site-assets', 'sponsors');
+      setSponsorLogoUrl(url);
+      showNotification('Sponsor logo uploaded to Supabase Storage!');
+    } catch (err) {
+      console.warn('Sponsor logo upload notice:', err);
+    } finally {
+      setIsUploadingSponsorLogo(false);
+    }
+  };
+
+  const handleSaveSponsor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sponsorName.trim()) return;
+    const sponsorToSave: BrandSponsor = {
+      id: editingSponsor ? editingSponsor.id : `sponsor-${Date.now()}`,
+      name: sponsorName.trim(),
+      tagline: sponsorTagline.trim() || undefined,
+      category: sponsorCategory.trim() || undefined,
+      logoUrl: sponsorLogoUrl.trim() || undefined,
+      affiliateUrl: sponsorAffiliateUrl.trim() || undefined,
+      displayOrder: sponsorOrder || sponsorsList.length + 1,
+    };
+    await upsertBrandSponsor(sponsorToSave);
+    setEditingSponsor(null);
+    setSponsorName('');
+    setSponsorTagline('');
+    setSponsorCategory('');
+    setSponsorLogoUrl('');
+    setSponsorAffiliateUrl('');
+    setSponsorOrder(sponsorsList.length + 1);
+    const fresh = await getBrandSponsors();
+    setSponsorsList(fresh);
+    onRefreshData();
+    showNotification('Brand Sponsor saved & synced to Supabase database!');
+  };
+
+  const handleDeleteSponsor = async (id: string) => {
+    if (confirm('Delete this brand sponsor from Supabase?')) {
+      await deleteBrandSponsor(id);
+      const fresh = await getBrandSponsors();
+      setSponsorsList(fresh);
+      onRefreshData();
+      showNotification('Brand Sponsor removed.');
+    }
+  };
+
+  // DAILY INTENTION HANDLERS
+  const handleSaveDailyIntention = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!intentionQuote.trim()) return;
+    setIsSavingIntention(true);
+    try {
+      const updated = await updateDailyIntention({
+        quoteText: intentionQuote.trim(),
+        theme: intentionTheme.trim() || undefined,
+        sanskritWord: intentionSanskritWord.trim() || undefined,
+        sanskritMeaning: intentionSanskritMeaning.trim() || undefined,
+      });
+      setDailyIntentionState(updated);
+      onRefreshData();
+      showNotification('Daily Intention updated and synced to live site!');
+    } catch (err) {
+      console.warn('Daily intention save error:', err);
+    } finally {
+      setIsSavingIntention(false);
+    }
   };
 
   // 3. TESTIMONIALS HANDLERS
@@ -1040,41 +1158,221 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
 
                 {/* -------------------------------------------------------- */}
-                {/* 3. BRAND MARQUEE TAB */}
+                {/* 3. BRAND MARQUEE TAB (Brand Sponsors CRUD) */}
                 {/* -------------------------------------------------------- */}
                 {activeTab === 'marquee' && (
                   <div className="space-y-6 max-w-4xl">
-                    <div className="border-b border-purple-500/15 pb-4">
-                      <h4 className="text-lg font-serif font-semibold text-white">Brand Sponsors & Collaborations Marquee</h4>
-                      <p className="text-xs text-purple-300/70">
-                        The seamless looping marquee directly beneath the hero section showing trusted partner brands.
-                      </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-500/15 pb-4">
+                      <div>
+                        <h4 className="text-lg font-serif font-semibold text-white">Brand Sponsors & Partnerships Marquee</h4>
+                        <p className="text-xs text-purple-300/70">
+                          Add, edit, or remove partner brand emblems, custom logo uploads, and trackable affiliate URLs.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingSponsor(null);
+                          setSponsorName('');
+                          setSponsorTagline('');
+                          setSponsorCategory('');
+                          setSponsorLogoUrl('');
+                          setSponsorAffiliateUrl('');
+                          setSponsorOrder(sponsorsList.length + 1);
+                        }}
+                        className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>Add New Sponsor</span>
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {[
-                        { name: 'Vogue Wellness', label: 'Editorial Residency', symbol: 'VW' },
-                        { name: 'Alo Sanctuary', label: 'Apparel & Studio Partner', symbol: 'AS' },
-                        { name: 'Liforme Mats', label: 'Biomechanical Alignment', symbol: 'LM' },
-                        { name: 'Four Sigmatic', label: 'Adaptogenic Nutrition', symbol: 'FS' },
-                        { name: 'Oura Health', label: 'Circadian Biometrics', symbol: 'OH' },
-                        { name: 'Ritual Herbs', label: 'Vedic Formulations', symbol: 'RH' },
-                      ].map((item, i) => (
-                        <div key={i} className="p-4 rounded-2xl bg-[#140E26] border border-purple-500/20 flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-purple-900/40 border border-purple-400/30 flex items-center justify-center font-serif text-sm font-bold text-purple-300">
-                            {item.symbol}
-                          </div>
-                          <div>
-                            <h5 className="text-sm font-semibold text-white">{item.name}</h5>
-                            <span className="text-[10px] text-slate-400 font-mono">{item.label}</span>
-                          </div>
+                    {/* Add/Edit Sponsor Form */}
+                    <form onSubmit={handleSaveSponsor} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/25 space-y-4">
+                      <div className="flex items-center justify-between border-b border-purple-500/15 pb-2">
+                        <h5 className="text-sm font-semibold text-white flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-purple-400" />
+                          <span>{editingSponsor ? `Editing: ${editingSponsor.name}` : 'Create Brand Partner Entry'}</span>
+                        </h5>
+                        {editingSponsor && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingSponsor(null);
+                              setSponsorName('');
+                              setSponsorTagline('');
+                              setSponsorCategory('');
+                              setSponsorLogoUrl('');
+                              setSponsorAffiliateUrl('');
+                            }}
+                            className="text-xs text-slate-400 hover:text-white"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Brand Name *</label>
+                          <input
+                            type="text"
+                            required
+                            value={sponsorName}
+                            onChange={(e) => setSponsorName(e.target.value)}
+                            placeholder="e.g. Manduka India"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
                         </div>
-                      ))}
-                    </div>
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Category</label>
+                          <input
+                            type="text"
+                            value={sponsorCategory}
+                            onChange={(e) => setSponsorCategory(e.target.value)}
+                            placeholder="e.g. Yoga Gear, Ayurvedic Wellness"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
+                        </div>
+                      </div>
 
-                    <p className="text-xs text-slate-400 bg-purple-950/30 p-4 rounded-2xl border border-purple-500/20">
-                      💡 Marquee is actively rendered via Framer Motion infinite loop with GPU acceleration. Logos and partner brand emblems render with glassmorphic cards and subtle violet glowing borders.
-                    </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Tagline</label>
+                          <input
+                            type="text"
+                            value={sponsorTagline}
+                            onChange={(e) => setSponsorTagline(e.target.value)}
+                            placeholder="e.g. Eco-Conscious Yoga Mats & Props"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Display Order</label>
+                          <input
+                            type="number"
+                            value={sponsorOrder}
+                            onChange={(e) => setSponsorOrder(parseInt(e.target.value) || 1)}
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs uppercase text-slate-300 mb-1">Affiliate / Partnership URL</label>
+                        <input
+                          type="url"
+                          value={sponsorAffiliateUrl}
+                          onChange={(e) => setSponsorAffiliateUrl(e.target.value)}
+                          placeholder="https://brand.com?ref=supriyabhavsar"
+                          className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                        />
+                      </div>
+
+                      {/* Logo Upload Box */}
+                      <div>
+                        <label className="block text-xs uppercase text-slate-300 mb-1">Brand Logo Emblem</label>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <label className="px-3.5 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/30 text-purple-200 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>{isUploadingSponsorLogo ? 'Uploading to Storage...' : 'Upload Logo'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleUploadSponsorLogo}
+                              disabled={isUploadingSponsorLogo}
+                              className="hidden"
+                            />
+                          </label>
+                          <input
+                            type="text"
+                            value={sponsorLogoUrl}
+                            onChange={(e) => setSponsorLogoUrl(e.target.value)}
+                            placeholder="Or paste Direct Logo URL"
+                            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Save Sponsor to Supabase</span>
+                      </button>
+                    </form>
+
+                    {/* Current Sponsors Grid */}
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-bold uppercase tracking-wider text-purple-300">
+                        Active Brand Sponsors ({sponsorsList.length})
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {sponsorsList.map((item) => (
+                          <div
+                            key={item.id}
+                            className="p-4 rounded-2xl bg-[#140E26] border border-purple-500/20 flex items-center justify-between gap-3 group hover:border-purple-400/40 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              {item.logoUrl ? (
+                                <img
+                                  src={item.logoUrl}
+                                  alt={item.name}
+                                  className="w-10 h-10 rounded-xl object-cover border border-purple-400/30 shrink-0"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-xl bg-purple-900/40 border border-purple-400/30 flex items-center justify-center font-serif text-sm font-bold text-purple-300 shrink-0">
+                                  {item.name.charAt(0)}
+                                </div>
+                              )}
+                              <div className="truncate">
+                                <h6 className="text-sm font-semibold text-white truncate">{item.name}</h6>
+                                <p className="text-[11px] text-slate-400 truncate">{item.tagline || item.category || 'Partner'}</p>
+                                {item.affiliateUrl && (
+                                  <a
+                                    href={item.affiliateUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-[10px] text-purple-300 hover:text-white flex items-center gap-1 font-mono mt-0.5 truncate"
+                                  >
+                                    <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+                                    <span className="truncate">{item.affiliateUrl}</span>
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingSponsor(item);
+                                  setSponsorName(item.name);
+                                  setSponsorTagline(item.tagline || '');
+                                  setSponsorCategory(item.category || '');
+                                  setSponsorLogoUrl(item.logoUrl || '');
+                                  setSponsorAffiliateUrl(item.affiliateUrl || '');
+                                  setSponsorOrder(item.displayOrder || 1);
+                                }}
+                                className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
+                                title="Edit Sponsor"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteSponsor(item.id)}
+                                className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
+                                title="Delete Sponsor"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1236,173 +1534,324 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div>
                         <h4 className="text-lg font-serif font-semibold text-white">Content Vault (YouTube & Reels)</h4>
                         <p className="text-xs text-purple-300/70">
-                          Directly update video embed URLs, durations, views, and upload custom thumbnails.
+                          Directly update video embed URLs, durations, views, and upload custom thumbnails or add Instagram Reels.
                         </p>
                       </div>
-                      <button
-                        onClick={() => {
-                          setEditingVideo(null);
-                          setNewVideoTitle('');
-                          setNewVideoDesc('');
-                          setNewVideoUrl('');
-                          setNewVideoCustomThumbnail('');
-                        }}
-                        className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Video</span>
-                      </button>
+                      
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setVaultSubtab('videos')}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                            vaultSubtab === 'videos' ? 'bg-purple-600 text-white shadow-md' : 'bg-white/5 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <YoutubeIcon className="w-3.5 h-3.5" />
+                          <span>YouTube ({videos.length})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setVaultSubtab('reels')}
+                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                            vaultSubtab === 'reels' ? 'bg-purple-600 text-white shadow-md' : 'bg-white/5 text-slate-300 hover:text-white'
+                          }`}
+                        >
+                          <InstagramIcon className="w-3.5 h-3.5" />
+                          <span>Reels ({reels.length})</span>
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Video Form */}
-                    <form onSubmit={handleSaveVideo} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
-                      <h5 className="text-sm font-semibold text-white flex items-center gap-2">
-                        <Film className="w-4 h-4 text-purple-400" />
-                        <span>{editingVideo ? 'Edit Video Entry' : 'New YouTube Video / Vlog'}</span>
-                      </h5>
+                    {vaultSubtab === 'videos' ? (
+                      <>
+                        {/* Video Form */}
+                        <form onSubmit={handleSaveVideo} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
+                          <h5 className="text-sm font-semibold text-white flex items-center gap-2">
+                            <Film className="w-4 h-4 text-purple-400" />
+                            <span>{editingVideo ? `Editing: ${editingVideo.title}` : 'New YouTube Video / Masterclass'}</span>
+                          </h5>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs uppercase text-slate-300 mb-1">Title</label>
-                          <input
-                            type="text"
-                            required
-                            value={newVideoTitle}
-                            onChange={(e) => setNewVideoTitle(e.target.value)}
-                            placeholder="e.g. 25-Min Radiant Morning Vinyasa"
-                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs uppercase text-slate-300 mb-1">Category</label>
-                          <select
-                            value={newVideoCategory}
-                            onChange={(e) => setNewVideoCategory(e.target.value as any)}
-                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                          >
-                            <option value="Yoga (YouTube)">Yoga (YouTube)</option>
-                            <option value="Lifestyle Vlogs">Lifestyle Vlogs</option>
-                          </select>
-                        </div>
-                      </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Title *</label>
+                              <input
+                                type="text"
+                                required
+                                value={newVideoTitle}
+                                onChange={(e) => setNewVideoTitle(e.target.value)}
+                                placeholder="e.g. 25-Min Radiant Morning Vinyasa"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Category</label>
+                              <select
+                                value={newVideoCategory}
+                                onChange={(e) => setNewVideoCategory(e.target.value as any)}
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              >
+                                <option value="Yoga (YouTube)">Yoga (YouTube)</option>
+                                <option value="Lifestyle Vlogs">Lifestyle Vlogs</option>
+                              </select>
+                            </div>
+                          </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-xs uppercase text-slate-300 mb-1">Duration</label>
-                          <input
-                            type="text"
-                            value={newVideoDuration}
-                            onChange={(e) => setNewVideoDuration(e.target.value)}
-                            placeholder="25:40"
-                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs uppercase text-slate-300 mb-1">Views</label>
-                          <input
-                            type="text"
-                            value={newVideoViews}
-                            onChange={(e) => setNewVideoViews(e.target.value)}
-                            placeholder="168K views"
-                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs uppercase text-slate-300 mb-1">YouTube URL</label>
-                          <input
-                            type="text"
-                            value={newVideoUrl}
-                            onChange={(e) => setNewVideoUrl(e.target.value)}
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
-                          />
-                        </div>
-                      </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Duration</label>
+                              <input
+                                type="text"
+                                value={newVideoDuration}
+                                onChange={(e) => setNewVideoDuration(e.target.value)}
+                                placeholder="25:40"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Views</label>
+                              <input
+                                type="text"
+                                value={newVideoViews}
+                                onChange={(e) => setNewVideoViews(e.target.value)}
+                                placeholder="168K views"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">YouTube URL</label>
+                              <input
+                                type="text"
+                                value={newVideoUrl}
+                                onChange={(e) => setNewVideoUrl(e.target.value)}
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                              />
+                            </div>
+                          </div>
 
-                      {/* Custom Thumbnail Upload */}
-                      <div>
-                        <label className="block text-xs uppercase text-slate-300 mb-1">Custom Thumbnail Image</label>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <label className="px-3.5 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/30 text-purple-200 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors">
-                            <Upload className="w-3.5 h-3.5" />
-                            <span>{isUploadingThumbnail ? 'Uploading...' : 'Upload Thumbnail'}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleUploadVideoThumbnail}
-                              disabled={isUploadingThumbnail}
-                              className="hidden"
+                          {/* Custom Thumbnail Upload */}
+                          <div>
+                            <label className="block text-xs uppercase text-slate-300 mb-1">Custom Thumbnail Image</label>
+                            <div className="flex flex-wrap items-center gap-3">
+                              <label className="px-3.5 py-2 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/30 text-purple-200 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors">
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>{isUploadingThumbnail ? 'Uploading...' : 'Upload Thumbnail'}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleUploadVideoThumbnail}
+                                  disabled={isUploadingThumbnail}
+                                  className="hidden"
+                                />
+                              </label>
+                              <input
+                                type="text"
+                                value={newVideoCustomThumbnail}
+                                onChange={(e) => setNewVideoCustomThumbnail(e.target.value)}
+                                placeholder="Or leave blank to auto-fetch from YouTube URL"
+                                className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs uppercase text-slate-300 mb-1">Description</label>
+                            <textarea
+                              rows={2}
+                              value={newVideoDesc}
+                              onChange={(e) => setNewVideoDesc(e.target.value)}
+                              placeholder="Brief description of the practice..."
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white resize-none"
                             />
-                          </label>
-                          <input
-                            type="text"
-                            value={newVideoCustomThumbnail}
-                            onChange={(e) => setNewVideoCustomThumbnail(e.target.value)}
-                            placeholder="Or paste Direct Thumbnail URL"
-                            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
-                          />
-                        </div>
-                      </div>
+                          </div>
 
-                      <div>
-                        <label className="block text-xs uppercase text-slate-300 mb-1">Description</label>
-                        <textarea
-                          rows={2}
-                          value={newVideoDesc}
-                          onChange={(e) => setNewVideoDesc(e.target.value)}
-                          placeholder="Brief description of the practice..."
-                          className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white resize-none"
-                        />
-                      </div>
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
+                          >
+                            <Save className="w-4 h-4" />
+                            <span>Save Video to Supabase</span>
+                          </button>
+                        </form>
 
-                      <button
-                        type="submit"
-                        className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
-                      >
-                        <Save className="w-4 h-4" />
-                        <span>Save Video to Supabase</span>
-                      </button>
-                    </form>
-
-                    {/* Videos List */}
-                    <div className="space-y-3">
-                      {videos.map((vid) => (
-                        <div key={vid.id} className="p-4 rounded-xl bg-[#140E26] border border-purple-500/15 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-12 h-12 rounded-lg bg-purple-950/60 border border-purple-400/20 flex items-center justify-center text-purple-300 shrink-0">
-                              <YoutubeIcon className="w-6 h-6" />
+                        {/* Videos List */}
+                        <div className="space-y-3">
+                          {videos.map((vid) => (
+                            <div key={vid.id} className="p-4 rounded-xl bg-[#140E26] border border-purple-500/15 flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-12 h-12 rounded-lg bg-purple-950/60 border border-purple-400/20 flex items-center justify-center text-purple-300 shrink-0">
+                                  <YoutubeIcon className="w-6 h-6" />
+                                </div>
+                                <div className="truncate">
+                                  <h5 className="text-sm font-semibold text-white truncate">{vid.title}</h5>
+                                  <span className="text-[11px] text-purple-300 font-mono">{vid.category} • {vid.duration} • {vid.views}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingVideo(vid);
+                                    setNewVideoTitle(vid.title);
+                                    setNewVideoCategory(vid.category as any);
+                                    setNewVideoDuration(vid.duration);
+                                    setNewVideoViews(vid.views);
+                                    setNewVideoDesc(vid.description);
+                                    setNewVideoUrl(vid.videoUrl || '');
+                                    setNewVideoCustomThumbnail(vid.customThumbnailUrl || '');
+                                  }}
+                                  className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
+                                  title="Edit Video"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteVideo(vid.id)}
+                                  className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
+                                  title="Delete Video"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
-                            <div className="truncate">
-                              <h5 className="text-sm font-semibold text-white truncate">{vid.title}</h5>
-                              <span className="text-[11px] text-purple-300 font-mono">{vid.category} • {vid.duration} • {vid.views}</span>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Instagram Reels Form */}
+                        <form onSubmit={handleSaveReel} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
+                          <h5 className="text-sm font-semibold text-white flex items-center gap-2">
+                            <InstagramIcon className="w-4 h-4 text-purple-400" />
+                            <span>{editingReel ? `Editing Reel: ${editingReel.poseName}` : 'New Instagram Reel'}</span>
+                          </h5>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Pose / Adjustment Name *</label>
+                              <input
+                                type="text"
+                                required
+                                value={newReelPose}
+                                onChange={(e) => setNewReelPose(e.target.value)}
+                                placeholder="e.g. Somatic Hip Opener"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Instagram Reel URL *</label>
+                              <input
+                                type="url"
+                                required
+                                value={newReelUrl}
+                                onChange={(e) => setNewReelUrl(e.target.value)}
+                                placeholder="https://www.instagram.com/reel/C-xyz123/"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                              />
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              onClick={() => {
-                                setEditingVideo(vid);
-                                setNewVideoTitle(vid.title);
-                                setNewVideoCategory(vid.category as any);
-                                setNewVideoDuration(vid.duration);
-                                setNewVideoViews(vid.views);
-                                setNewVideoDesc(vid.description);
-                                setNewVideoUrl(vid.videoUrl || '');
-                                setNewVideoCustomThumbnail(vid.customThumbnailUrl || '');
-                              }}
-                              className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteVideo(vid.id)}
-                              className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Likes Count</label>
+                              <input
+                                type="text"
+                                value={newReelLikes}
+                                onChange={(e) => setNewReelLikes(e.target.value)}
+                                placeholder="48.5K"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Duration</label>
+                              <input
+                                type="text"
+                                value={newReelDuration}
+                                onChange={(e) => setNewReelDuration(e.target.value)}
+                                placeholder="0:45"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Audio Track</label>
+                              <input
+                                type="text"
+                                value={newReelAudio}
+                                onChange={(e) => setNewReelAudio(e.target.value)}
+                                placeholder="♫ Original Audio • Supriya"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
                           </div>
+
+                          <div>
+                            <label className="block text-xs uppercase text-slate-300 mb-1">Caption / Micro-Adjustment Note</label>
+                            <textarea
+                              rows={2}
+                              value={newReelCaption}
+                              onChange={(e) => setNewReelCaption(e.target.value)}
+                              placeholder="Key somatic cues for this reel..."
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white resize-none"
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
+                          >
+                            <Save className="w-4 h-4" />
+                            <span>Save Reel to Supabase</span>
+                          </button>
+                        </form>
+
+                        {/* Reels List */}
+                        <div className="space-y-3">
+                          {reels.map((reel) => (
+                            <div key={reel.id} className="p-4 rounded-xl bg-[#140E26] border border-purple-500/15 flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-12 h-12 rounded-lg bg-purple-950/60 border border-purple-400/20 flex items-center justify-center text-purple-300 shrink-0">
+                                  <InstagramIcon className="w-6 h-6" />
+                                </div>
+                                <div className="truncate">
+                                  <h5 className="text-sm font-semibold text-white truncate">{reel.poseName}</h5>
+                                  <p className="text-xs text-slate-400 truncate">{reel.caption}</p>
+                                  <span className="text-[11px] text-purple-300 font-mono">
+                                    {reel.likesCount} likes • {reel.duration} • @{reel.creatorHandle}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingReel(reel);
+                                    setNewReelPose(reel.poseName);
+                                    setNewReelCaption(reel.caption);
+                                    setNewReelLikes(reel.likesCount);
+                                    setNewReelDuration(reel.duration);
+                                    setNewReelAudio(reel.audioTrack);
+                                    setNewReelUrl(reel.reelUrl || '');
+                                  }}
+                                  className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
+                                  title="Edit Reel"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteReel(reel.id)}
+                                  className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
+                                  title="Delete Reel"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -1790,37 +2239,102 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
 
                 {/* -------------------------------------------------------- */}
-                {/* 8. DAILY INTENTION TAB */}
+                {/* 8. DAILY INTENTION TAB (Live Editor & Sync) */}
                 {/* -------------------------------------------------------- */}
                 {activeTab === 'intentions' && (
-                  <div className="space-y-6 max-w-4xl">
+                  <form onSubmit={handleSaveDailyIntention} className="space-y-6 max-w-4xl">
                     <div className="border-b border-purple-500/15 pb-4">
-                      <h4 className="text-lg font-serif font-semibold text-white">Daily Intention & Wellness Card</h4>
+                      <h4 className="text-lg font-serif font-semibold text-white">Daily Intention & Wellness Card Editor</h4>
                       <p className="text-xs text-purple-300/70">
-                        The interactive mindful moment widget placed directly above the footer with a 3.0-second liquid charge button.
+                        Update the sacred mindful quote revealed when visitors hold the 3.0-second liquid charge button above the footer.
                       </p>
                     </div>
 
-                    <div className="space-y-3">
-                      {[
-                        { word: 'Sthira', meaning: 'Steadiness & Grounding', quote: 'Stillness is not the absence of life. It is the gathering of your sacred power before moving forward.' },
-                        { word: 'Sukha', meaning: 'Ease & Joy', quote: 'You do not need to conquer your tension. Simply breathe into its edges and let gravity do the uncoiling.' },
-                        { word: 'Pratyahara', meaning: 'Inward Senses', quote: 'The body keeps the rhythm of every unsaid truth. Unclench your jaw, soften your collarbones, and return home.' },
-                      ].map((item, i) => (
-                        <div key={i} className="p-4 rounded-2xl bg-[#140E26] border border-purple-500/20">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-serif text-sm font-bold text-purple-300">{item.word}</span>
-                            <span className="text-xs text-slate-400 font-mono">({item.meaning})</span>
-                          </div>
-                          <p className="text-xs text-slate-200 italic">"{item.quote}"</p>
+                    <div className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/25 space-y-4">
+                      <h5 className="text-sm font-semibold text-white flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-purple-400" />
+                        <span>Active Guided Intention</span>
+                      </h5>
+
+                      <div>
+                        <label className="block text-xs uppercase text-slate-300 mb-1 font-semibold">
+                          Daily Sacred Quote Text *
+                        </label>
+                        <textarea
+                          required
+                          rows={3}
+                          value={intentionQuote}
+                          onChange={(e) => setIntentionQuote(e.target.value)}
+                          placeholder="e.g. The breath is the bridge which connects life to consciousness..."
+                          className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-purple-500/20 text-sm text-white resize-none font-serif leading-relaxed"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Theme</label>
+                          <input
+                            type="text"
+                            value={intentionTheme}
+                            onChange={(e) => setIntentionTheme(e.target.value)}
+                            placeholder="e.g. Somatic Presence"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
                         </div>
-                      ))}
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Sanskrit Word</label>
+                          <input
+                            type="text"
+                            value={intentionSanskritWord}
+                            onChange={(e) => setIntentionSanskritWord(e.target.value)}
+                            placeholder="e.g. Sthira & Sukha"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs uppercase text-slate-300 mb-1">Sanskrit Meaning</label>
+                          <input
+                            type="text"
+                            value={intentionSanskritMeaning}
+                            onChange={(e) => setIntentionSanskritMeaning(e.target.value)}
+                            placeholder="e.g. Steadiness and Ease"
+                            className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Live Visual Preview Card */}
+                      <div className="p-4 rounded-xl bg-[#0C081A] border border-purple-500/20 mt-4">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-purple-400 block mb-2 font-mono">
+                          Live Frontend Preview:
+                        </span>
+                        <div className="text-center py-2">
+                          <span className="inline-block px-3 py-1 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-200 text-xs font-medium mb-3">
+                            {intentionSanskritWord || 'Prana'} ({intentionSanskritMeaning || 'Life-Force'}) • {intentionTheme || 'Mindful Calibration'}
+                          </span>
+                          <blockquote className="font-serif text-base sm:text-lg text-white italic max-w-xl mx-auto">
+                            &ldquo;{intentionQuote || 'Your daily intention will appear here.'}&rdquo;
+                          </blockquote>
+                          <p className="text-[11px] text-purple-300/80 font-mono mt-2">
+                            Supriya Bhavsar • Conscious Movement Sanctuary
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSavingIntention}
+                        className="px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>{isSavingIntention ? 'Syncing to Supabase...' : 'Save Daily Intention to Supabase'}</span>
+                      </button>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/20 text-xs text-slate-300">
-                      ⚡ Press-and-hold duration is configured to exactly <strong>3.0 seconds (3000ms)</strong> on the frontend to allow a complete somatic inhalation cycle before the quote is revealed.
+                      ⚡ Press-and-hold duration is configured to exactly <strong>3.0 seconds (3000ms)</strong> on the frontend to allow a complete somatic inhalation cycle before this quote is revealed.
                     </div>
-                  </div>
+                  </form>
                 )}
 
                 {/* -------------------------------------------------------- */}

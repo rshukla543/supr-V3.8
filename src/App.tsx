@@ -25,6 +25,8 @@ import {
   NewsletterSubscriber,
   SiteSettings,
   Testimonial,
+  BrandSponsor,
+  DailyIntention,
 } from './types';
 import {
   getVideos,
@@ -35,6 +37,8 @@ import {
   getSubscribers,
   getSiteSettings,
   getAllTestimonials,
+  getBrandSponsors,
+  getDailyIntention,
   INITIAL_SITE_SETTINGS,
 } from './lib/supabase';
 import { Play, Wind, ArrowUpRight, Image as ImageIcon } from 'lucide-react';
@@ -48,6 +52,9 @@ export function App() {
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SITE_SETTINGS);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [sponsors, setSponsors] = useState<BrandSponsor[]>([]);
+  const [dailyIntention, setDailyIntention] = useState<DailyIntention | null>(null);
+  const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(true);
 
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
   const [selectedReel, setSelectedReel] = useState<InstagramReel | null>(null);
@@ -58,7 +65,7 @@ export function App() {
   // Load all data from Supabase / cached store
   const loadData = async () => {
     try {
-      const [v, r, s, g, w, n, settings, t] = await Promise.all([
+      const [v, r, s, g, w, n, settings, t, sp, di] = await Promise.all([
         getVideos(),
         getReels(),
         getServices(),
@@ -67,6 +74,8 @@ export function App() {
         getSubscribers(),
         getSiteSettings(),
         getAllTestimonials(),
+        getBrandSponsors(),
+        getDailyIntention(),
       ]);
       setVideos(v);
       setReels(r);
@@ -76,8 +85,12 @@ export function App() {
       setSubscribers(n);
       setSiteSettings(settings);
       setTestimonials(t);
+      setSponsors(sp);
+      setDailyIntention(di);
     } catch (err) {
       console.warn('Error loading database entities:', err);
+    } finally {
+      setIsLoadingSettings(false);
     }
   };
 
@@ -130,10 +143,11 @@ export function App() {
           siteSettings={siteSettings}
           onStartTraining={handleStartTraining}
           onWatchVideo={handleWatchHeroVideo}
+          isLoading={isLoadingSettings}
         />
 
         {/* 2. Brand Collaborations Infinite Looping Marquee */}
-        <BrandMarquee />
+        <BrandMarquee sponsors={sponsors} />
 
         {/* 3. 3D Coverflow Drag Carousel Gallery Section (Right Above/Before Content Vault) */}
         <GallerySection images={gallery} />
@@ -165,11 +179,11 @@ export function App() {
         <AboutNewsletterSection />
 
         {/* 9. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
-        <DailyIntentionSection />
+        <DailyIntentionSection intention={dailyIntention || undefined} />
       </main>
 
       {/* 10. Dark Minimalist Footer - Center Aligned on Mobile with Dynamic Logo */}
-      <Footer logoUrl={siteSettings.logoUrl} />
+      <Footer logoUrl={siteSettings.logoUrl} siteSettings={siteSettings} />
 
       {/* Mobile Alternative Quick Action Dock */}
       <div className="md:hidden fixed bottom-3 inset-x-3 z-40">
@@ -220,6 +234,8 @@ export function App() {
         subscribers={subscribers}
         siteSettings={siteSettings}
         testimonials={testimonials}
+        sponsors={sponsors}
+        dailyIntention={dailyIntention || undefined}
         onRefreshData={loadData}
       />
 

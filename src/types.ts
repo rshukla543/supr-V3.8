@@ -32,6 +32,7 @@ export interface InstagramReel {
   poseName: string;
   tags: string[];
   date: string;
+  reelUrl?: string;
 }
 
 export interface ServiceItem {
@@ -88,6 +89,13 @@ export interface SiteSettings {
   bioStory: string;
   logoUrl?: string;
   heroPortraitUrl?: string;
+  name?: string;
+  location?: string;
+  managerName?: string;
+  managerHandle?: string;
+  managementEmail?: string;
+  instagramHandle?: string;
+  youtubeChannel?: string;
 }
 
 export interface Testimonial {
@@ -102,3 +110,32 @@ export interface Testimonial {
   createdAt: string;
 }
 
+export interface BrandSponsor {
+  id: string;
+  name: string;
+  tagline?: string;
+  category?: string;
+  logoUrl?: string;
+  affiliateUrl?: string;
+  displayOrder?: number;
+}
+
+export interface DailyIntention {
+  id: string;
+  quoteText: string;
+  theme?: string;
+  sanskritWord?: string;
+  sanskritMeaning?: string;
+  isActive?: boolean;
+  updatedAt?: string;
+}
+
+export interface HeroSectionData {
+  id?: string;
+  badge: string;
+  headline: string;
+  subtext: string;
+  primaryCta: string;
+  secondaryCta: string;
+  portraitUrl?: string;
+}

@@ -4,6 +4,7 @@ import { VideoContent, InstagramReel, ContentCategory } from '../types';
 import { VIDEO_DATA, INSTAGRAM_REELS } from '../data/mockData';
 import { Play, Eye, Clock, Sparkles, ExternalLink, Heart, MessageCircle, Film, ArrowRight } from 'lucide-react';
 import { YoutubeIcon, InstagramIcon } from './Icons';
+import { getYouTubeThumbnailUrl } from '../lib/videoParser';
 
 interface ContentVaultSectionProps {
   videos?: VideoContent[];
@@ -61,7 +62,7 @@ export const ContentVaultSection: React.FC<ContentVaultSectionProps> = ({
           {/* Social Platform Badges */}
           <div className="mt-6 md:mt-0 flex items-center gap-3">
             <a
-              href="https://youtube.com"
+              href="https://youtube.com/@supriyabhavsar_yoga"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-purple-500/20 hover:border-purple-400 text-slate-200 text-xs font-semibold hover:text-white transition-all shadow-xs backdrop-blur-md"
@@ -71,7 +72,7 @@ export const ContentVaultSection: React.FC<ContentVaultSectionProps> = ({
               <ExternalLink className="w-3 h-3 text-slate-400" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/supriya_9508"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-purple-500/20 hover:border-purple-300 text-slate-200 text-xs font-semibold hover:text-white transition-all shadow-xs backdrop-blur-md"
@@ -233,10 +234,16 @@ export const ContentVaultSection: React.FC<ContentVaultSectionProps> = ({
                   {/* 16:9 YouTube Player Simulation */}
                   <div className="relative aspect-video w-full overflow-hidden bg-[#0A0714]">
                     
-                    {/* Thumbnail: Custom Uploaded Thumbnail or Dark Gradient Artwork */}
+                    {/* Thumbnail: Custom Uploaded Thumbnail, Auto YouTube Thumbnail, or Dark Gradient Artwork */}
                     {video.customThumbnailUrl ? (
                       <img
                         src={video.customThumbnailUrl}
+                        alt={video.title}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : getYouTubeThumbnailUrl(video.videoUrl) ? (
+                      <img
+                        src={getYouTubeThumbnailUrl(video.videoUrl)!}
                         alt={video.title}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />

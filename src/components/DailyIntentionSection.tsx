@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, RefreshCw, Feather, CheckCircle2 } from 'lucide-react';
+import { DailyIntention } from '../types';
 
 interface IntentionQuote {
   quote: string;
@@ -9,7 +10,13 @@ interface IntentionQuote {
   sanskritMeaning: string;
 }
 
-const INTENTIONS: IntentionQuote[] = [
+const DEFAULT_INTENTIONS: IntentionQuote[] = [
+  {
+    quote: "The breath is the bridge which connects life to consciousness, uniting the body and the mind in pure stillness.",
+    theme: "Sthira Sukham Asanam (Steadiness and Ease)",
+    sanskritWord: "Prana & Dharana",
+    sanskritMeaning: "Life-force breath & steady focus",
+  },
   {
     quote: "Stillness is not the absence of life. It is the gathering of your sacred power before moving forward.",
     theme: "Somatic Presence",
@@ -29,12 +36,6 @@ const INTENTIONS: IntentionQuote[] = [
     sanskritMeaning: "Inward Senses",
   },
   {
-    quote: "When modern acceleration overwhelms you, your breath is the singular bridge back to sovereign mental stillness.",
-    theme: "Pranayama Anchor",
-    sanskritWord: "Prana",
-    sanskritMeaning: "Life Force Vitality",
-  },
-  {
     quote: "Allow your practice to be an offering, not an audition. You are already whole as you arrive on the mat.",
     theme: "Radical Acceptance",
     sanskritWord: "Santosha",
@@ -42,7 +43,11 @@ const INTENTIONS: IntentionQuote[] = [
   },
 ];
 
-export const DailyIntentionSection: React.FC = () => {
+interface DailyIntentionSectionProps {
+  intention?: DailyIntention;
+}
+
+export const DailyIntentionSection: React.FC<DailyIntentionSectionProps> = ({ intention }) => {
   const [progress, setProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
@@ -52,7 +57,18 @@ export const DailyIntentionSection: React.FC = () => {
   const startTimeRef = useRef<number | null>(null);
   const HOLD_DURATION_MS = 3000; // Exactly 3.0 seconds of continuous hold to reveal
 
-  const activeQuote = INTENTIONS[quoteIndex];
+  // If dynamic intention is passed from Supabase, inject it as the first quote
+  const intentionList: IntentionQuote[] = intention && intention.quoteText ? [
+    {
+      quote: intention.quoteText,
+      theme: intention.theme || "Somatic Alignment",
+      sanskritWord: intention.sanskritWord || "Prana",
+      sanskritMeaning: intention.sanskritMeaning || "Life-force vitality",
+    },
+    ...DEFAULT_INTENTIONS,
+  ] : DEFAULT_INTENTIONS;
+
+  const activeQuote = intentionList[quoteIndex % intentionList.length];
 
   // Animation frame loop for buttery-smooth liquid fill progress
   const updateProgress = (timestamp: number) => {
@@ -94,7 +110,7 @@ export const DailyIntentionSection: React.FC = () => {
   const handleResetOrNext = () => {
     setIsRevealed(false);
     setProgress(0);
-    setQuoteIndex((prev) => (prev + 1) % INTENTIONS.length);
+    setQuoteIndex((prev) => (prev + 1) % intentionList.length);
   };
 
   useEffect(() => {

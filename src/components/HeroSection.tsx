@@ -7,12 +7,14 @@ interface HeroSectionProps {
   siteSettings: SiteSettings;
   onStartTraining: () => void;
   onWatchVideo: () => void;
+  isLoading?: boolean;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   siteSettings,
   onStartTraining,
   onWatchVideo,
+  isLoading = false,
 }) => {
   // Stagger container for word-by-word reveal
   const containerVariants = {
@@ -156,7 +158,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           </div>
 
-          {/* Right Column: Creator Portrait Cutout (5 cols) */}
+          {/* Right Column: Clean Creator Portrait Card (Edge-to-Edge, NO Text Badges) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -170,49 +172,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <motion.div
               animate={{ y: [-4, 4, -4] }}
               transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              className="relative z-10 w-full max-w-sm sm:max-w-md aspect-[4/5] rounded-[2.5rem] border border-purple-500/30 shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden group flex flex-col justify-between p-6"
+              className="relative z-10 w-full max-w-sm sm:max-w-md aspect-[4/5] rounded-[2.5rem] border border-purple-500/30 shadow-[0_25px_60px_rgba(0,0,0,0.85)] overflow-hidden group bg-[#0F0B1E]"
             >
-              {/* Full-bleed corner-to-corner Card Image (No clipping, completely fills the card) */}
-              <img
-                src={
-                  siteSettings.heroPortraitUrl ||
-                  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=85"
-                }
-                alt="Supriya - Yoga Trainer & Lifestyle Creator"
-                className="absolute inset-0 w-full h-full object-cover object-top filter brightness-[0.94] contrast-[1.04] transition-transform duration-700 ease-out group-hover:scale-105"
-              />
-
-              {/* Gradient Scrim & Vignette Overlays for Depth and Ultra-Crisp Legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0914] via-[#0B0914]/20 to-black/30 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-b from-purple-950/25 via-transparent to-[#0B0914]/80 pointer-events-none" />
-              <div className="absolute inset-0 ring-1 ring-inset ring-purple-400/25 rounded-[2.5rem] pointer-events-none" />
-
-              {/* Top Floating Glass Badge */}
-              <div className="relative z-10 w-full flex items-center justify-between text-xs tracking-wider uppercase">
-                <span className="px-3.5 py-1.5 rounded-full bg-[#0D091B]/75 border border-purple-400/30 text-purple-200 font-medium text-[11px] backdrop-blur-md shadow-sm">
-                  Creator Portrait
-                </span>
-                <span className="px-3 py-1.5 rounded-full bg-[#0D091B]/75 border border-purple-500/25 text-[11px] font-mono text-slate-200 backdrop-blur-md flex items-center gap-1.5 shadow-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-                  Supriya • RYT-500
-                </span>
-              </div>
-
-              {/* Bottom Floating Glass Card */}
-              <div className="relative z-10 w-full bg-[#0E091E]/85 backdrop-blur-xl rounded-2xl p-3.5 border border-purple-500/30 flex items-center justify-between shadow-[0_10px_25px_rgba(0,0,0,0.6)]">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-purple-600/30 text-purple-200 flex items-center justify-center font-serif text-base font-bold border border-purple-400/30 shadow-inner">
-                    ॐ
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-white drop-shadow-sm">Daily Awakening Flow</p>
-                    <p className="text-[11px] text-purple-300/80 font-medium">Live 7:00 AM IST • Season 4</p>
-                  </div>
+              {isLoading ? (
+                /* Sleek shimmer skeleton while Supabase fetch completes */
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-purple-950/40 via-purple-900/20 to-[#0B0914] animate-pulse flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-full border border-purple-400/30 border-t-purple-400 animate-spin mb-4" />
+                  <p className="text-xs text-purple-300/70 font-mono tracking-widest uppercase">Loading Portrait...</p>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-purple-500/30 text-purple-200 border border-purple-400/40 rounded-full shadow-xs">
-                  Active
-                </span>
-              </div>
+              ) : (
+                /* Pure, clean, edge-to-edge corner-to-corner creator portrait with NO text overlay cards */
+                <>
+                  <img
+                    src={
+                      siteSettings.heroPortraitUrl ||
+                      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=85"
+                    }
+                    alt={siteSettings.name ? `${siteSettings.name} - Yoga Trainer & Lifestyle Creator` : "Supriya Bhavsar - Yoga Trainer & Lifestyle Creator"}
+                    className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.98] contrast-[1.03] transition-transform duration-700 ease-out group-hover:scale-105"
+                    loading="eager"
+                  />
+                  {/* Subtle inner glass border ring */}
+                  <div className="absolute inset-0 ring-1 ring-inset ring-purple-400/25 rounded-[2.5rem] pointer-events-none" />
+                </>
+              )}
             </motion.div>
           </motion.div>
 

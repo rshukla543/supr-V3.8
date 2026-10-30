@@ -8,8 +8,12 @@ import {
   NewsletterSubscriber,
   SiteSettings,
   Testimonial,
+  BrandSponsor,
+  DailyIntention,
+  HeroSectionData,
 } from '../types';
 import { VIDEO_DATA, INSTAGRAM_REELS, SERVICES_DATA } from '../data/mockData';
+import { sendConfirmationEmail } from './emailService';
 
 const metaEnv = (import.meta as any).env || {};
 const supabaseUrl =
@@ -91,22 +95,29 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   heroBadge: '500-HR RYT • Somatic Yoga & Lifestyle Alchemist',
   headline: 'Find Your Balance. Elevate Your Lifestyle.',
   subtext:
-    'Escape digital fatigue and reclaim somatic vitality. Through the alchemy of dynamic Vinyasa, deep fascial unwinding, and conscious daily rituals, I guide high-achievers into grounded mental stillness and effortless strength.',
+    'Rooted in Vadodara, Gujarat. Through somatic alignment, classical Vinyasa, and conscious rituals, I guide modern seekers into grounded mental stillness and effortless physical grace.',
   primaryCta: 'Start Training',
   secondaryCta: 'Watch Latest Video',
   bioQuote: 'Movement is not about performance. It is an act of returning home.',
   bioStory:
-    'For over eight years, I navigated the unrelenting cadence of corporate tech until severe nervous system burnout compelled me to step off the treadmill and re-learn what it means to actually inhabit the human body. My search brought me to Rishikesh and Bali for 500+ hours of advanced classical Vinyasa and somatic breathwork.',
+    'For over eight years, I navigated the unrelenting cadence of corporate tech until severe nervous system burnout compelled me to step off the treadmill and re-learn what it means to actually inhabit the human body. My search brought me to Rishikesh and Bali for 500+ hours of advanced classical Vinyasa and somatic breathwork. Today, based out of Vadodara, Gujarat, I lead immersive retreats, bespoke 1-on-1 mentorship, and digital holistic masterclasses.',
   logoUrl: '',
-  heroPortraitUrl: '',
+  heroPortraitUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=85',
+  name: 'Supriya Bhavsar',
+  location: 'Vadodara, Gujarat',
+  managerName: 'Shlok Brahmbhatt',
+  managerHandle: '@shlok.brahmbhatt',
+  managementEmail: 'management@supriyabhavsar.com',
+  instagramHandle: '@supriya_9508',
+  youtubeChannel: '@supriyabhavsar_yoga',
 };
 
 export const INITIAL_TESTIMONIALS: Testimonial[] = [
   {
     id: 'test-1',
-    name: 'Elena Rostova',
-    email: 'elena.rostova@example.com',
-    roleOrLocation: 'Private Mentorship Client • London, UK',
+    name: 'Anjali Sharma',
+    email: 'anjali.sharma@example.com',
+    roleOrLocation: 'Private Mentorship Client • Vadodara & Ahmedabad',
     rating: 5,
     message: 'Training 1-on-1 with Supriya radically re-architected how I handle executive burnout. Her somatic alignment methods eliminated 4 years of chronic thoracic pain within 6 weeks. She doesn\'t just teach postures—she teaches conscious physical liberation.',
     imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
@@ -115,31 +126,31 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 'test-2',
-    name: 'Dr. Marcus Vance',
-    email: 'm.vance@wellnessclinic.org',
-    roleOrLocation: 'Orthopedic Surgeon & Daily Yogi • San Francisco, CA',
+    name: 'Rahul Desai',
+    email: 'rahul.desai@innovatecorp.in',
+    roleOrLocation: 'Tech Founder & Asana Practitioner • Surat & Mumbai',
     rating: 5,
-    message: 'As a surgeon on my feet for 10-hour operations, my posture was collapsing. Supriya’s precision with fascia unwinding and pelvic neutral biomechanics is unmatched. Her guidance is grounded, scientifically rigorous, and deeply restorative.',
+    message: 'As a startup founder constantly battling screen posture and fatigue, Supriya’s precision with fascia unwinding and pelvic neutral biomechanics has been game changing. Her guidance is grounded, scientifically rigorous, and deeply restorative.',
     imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     isApproved: true,
     createdAt: '2025-02-02T14:20:00Z',
   },
   {
     id: 'test-3',
-    name: 'Aanya Sharma',
-    email: 'aanya.wellness@gmail.com',
-    roleOrLocation: 'Holistic Nutritionist • Mumbai & Rishikesh',
+    name: 'Priya Patel',
+    email: 'priya.patel@wellnessindia.org',
+    roleOrLocation: 'Holistic Nutritionist • Vadodara, Gujarat',
     rating: 5,
     message: 'The custom diet & Ayurvedic rhythm plan designed by Supriya restored my circadian vitality after years of irregular travel. Her philosophy honors real food, cyclical energy, and genuine self-love. I have never felt more balanced in my skin.',
-    imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     isApproved: true,
     createdAt: '2025-02-18T09:15:00Z',
   },
   {
     id: 'test-4',
-    name: 'Julian Montgomery',
-    email: 'julian.m@vibecreatives.co',
-    roleOrLocation: 'Creative Director • Brooklyn, NY',
+    name: 'Vikram Malhotra',
+    email: 'vikram.m@zenithmedia.in',
+    roleOrLocation: 'Creative Director • Bengaluru',
     rating: 5,
     message: 'Her breathwork sessions before our brand retreat completely rewired our collective focus. Supriya brings a grounded calmness that cuts straight through modern noise. An extraordinary teacher and conscious creator.',
     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
@@ -147,6 +158,73 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
     createdAt: '2025-03-01T16:45:00Z',
   },
 ];
+
+export const INITIAL_BRAND_SPONSORS: BrandSponsor[] = [
+  {
+    id: 'sponsor-1',
+    name: 'Manduka India',
+    tagline: 'Eco-Conscious Yoga Mats & Bio-Grip Blocks',
+    category: 'Yoga Gear',
+    logoUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://manduka.com?ref=supriyabhavsar',
+    displayOrder: 1,
+  },
+  {
+    id: 'sponsor-2',
+    name: 'Kama Ayurveda',
+    tagline: 'Pure Ayurvedic Elixirs, Kumkumadi Oils & Botanicals',
+    category: 'Ayurvedic Wellness',
+    logoUrl: 'https://images.unsplash.com/photo-1608248597359-2e67d268d8ef?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://kamaayurveda.com?ref=supriyabhavsar',
+    displayOrder: 2,
+  },
+  {
+    id: 'sponsor-3',
+    name: 'Liforme',
+    tagline: 'Intelligent Alignment Alignment System Mats',
+    category: 'Performance Gear',
+    logoUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://liforme.com?ref=supriyabhavsar',
+    displayOrder: 3,
+  },
+  {
+    id: 'sponsor-4',
+    name: 'Conscious Food',
+    tagline: 'Organic Wood-Pressed Oils & Heritage Grains',
+    category: 'Holistic Nutrition',
+    logoUrl: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://consciousfood.com?ref=supriyabhavsar',
+    displayOrder: 4,
+  },
+  {
+    id: 'sponsor-5',
+    name: 'Vahdam India',
+    tagline: 'Direct-from-Source Himalayan Herbal Teas',
+    category: 'Tea & Adaptogens',
+    logoUrl: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://vahdam.com?ref=supriyabhavsar',
+    displayOrder: 5,
+  },
+  {
+    id: 'sponsor-6',
+    name: 'Alo Yoga',
+    tagline: 'Mindful Movement & Studio-to-Street Wear',
+    category: 'Activewear',
+    logoUrl: 'https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=240&q=80',
+    affiliateUrl: 'https://aloyoga.com?ref=supriyabhavsar',
+    displayOrder: 6,
+  },
+];
+
+export const INITIAL_DAILY_INTENTION: DailyIntention = {
+  id: 'daily-intention-1',
+  quoteText: 'The breath is the bridge which connects life to consciousness, uniting the body and the mind in pure stillness.',
+  theme: 'Sthira Sukham Asanam (Steadiness and Ease)',
+  sanskritWord: 'Prana & Dharana',
+  sanskritMeaning: 'Life-force breath and unwavering steady focus in the present moment.',
+  isActive: true,
+  updatedAt: new Date().toISOString(),
+};
 
 
 // ----------------------------------------------------------------------
@@ -532,6 +610,18 @@ export async function saveWaitlistSubmission(data: {
   const current = await getWaitlistSubmissions();
   localStorage.setItem('supriya_waitlist', JSON.stringify([newSubmission, ...current]));
 
+  // Trigger automated confirmation email via Resend & Supabase Edge Function
+  sendConfirmationEmail({
+    type: 'waitlist',
+    to: data.email,
+    name: data.fullName,
+    details: {
+      serviceName: data.serviceId,
+      experienceLevel: data.experienceLevel,
+      goals: data.goals,
+    },
+  }).catch((err) => console.warn('Email automation notice:', err));
+
   // Insert into waitlist_leads as explicitly requested
   try {
     await supabase.from('waitlist_leads').insert({
@@ -615,6 +705,15 @@ export async function saveSubscriber(email: string, interest: string): Promise<v
     localStorage.setItem('supriya_subscribers', JSON.stringify([newSub, ...current]));
   }
 
+  // Trigger automated confirmation email via Resend & Supabase Edge Function
+  sendConfirmationEmail({
+    type: 'newsletter',
+    to: email,
+    details: {
+      interest,
+    },
+  }).catch((err) => console.warn('Email automation notice:', err));
+
   try {
     await supabase.from('newsletter_subscribers').insert({
       email,
@@ -628,26 +727,45 @@ export async function saveSubscriber(email: string, interest: string): Promise<v
 // SITE SETTINGS
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
+    // Try hero_section first for direct portrait and headline overrides
+    let heroTableData: any = null;
+    try {
+      const { data: heroData } = await supabase.from('hero_section').select('*').limit(1).maybeSingle();
+      if (heroData) {
+        heroTableData = heroData;
+      }
+    } catch {
+      // hero_section table not created yet, continue
+    }
+
     const { data, error } = await supabase.from('site_settings').select('*');
-    if (error || !data || data.length === 0) {
+    if ((error || !data || data.length === 0) && !heroTableData) {
       const local = localStorage.getItem('supriya_site_settings');
       return local ? JSON.parse(local) : INITIAL_SITE_SETTINGS;
     }
 
-    const hero = data.find((d) => d.key === 'hero')?.value || {};
-    const bio = data.find((d) => d.key === 'bio')?.value || {};
-    const branding = data.find((d) => d.key === 'branding')?.value || {};
+    const hero = data?.find((d) => d.key === 'hero')?.value || {};
+    const bio = data?.find((d) => d.key === 'bio')?.value || {};
+    const branding = data?.find((d) => d.key === 'branding')?.value || {};
+    const contact = data?.find((d) => d.key === 'contact')?.value || {};
 
     return {
-      heroBadge: hero.badge || INITIAL_SITE_SETTINGS.heroBadge,
-      headline: hero.headline || INITIAL_SITE_SETTINGS.headline,
-      subtext: hero.subtext || INITIAL_SITE_SETTINGS.subtext,
-      primaryCta: hero.primary_cta || INITIAL_SITE_SETTINGS.primaryCta,
-      secondaryCta: hero.secondary_cta || INITIAL_SITE_SETTINGS.secondaryCta,
+      heroBadge: heroTableData?.badge || hero.badge || INITIAL_SITE_SETTINGS.heroBadge,
+      headline: heroTableData?.headline || hero.headline || INITIAL_SITE_SETTINGS.headline,
+      subtext: heroTableData?.subtext || hero.subtext || INITIAL_SITE_SETTINGS.subtext,
+      primaryCta: heroTableData?.primary_cta || hero.primary_cta || INITIAL_SITE_SETTINGS.primaryCta,
+      secondaryCta: heroTableData?.secondary_cta || hero.secondary_cta || INITIAL_SITE_SETTINGS.secondaryCta,
       bioQuote: bio.quote || INITIAL_SITE_SETTINGS.bioQuote,
       bioStory: bio.story || INITIAL_SITE_SETTINGS.bioStory,
       logoUrl: branding.logo_url || hero.logo_url || INITIAL_SITE_SETTINGS.logoUrl,
-      heroPortraitUrl: branding.hero_portrait_url || hero.portrait_url || INITIAL_SITE_SETTINGS.heroPortraitUrl,
+      heroPortraitUrl: heroTableData?.portrait_url || branding.hero_portrait_url || hero.portrait_url || INITIAL_SITE_SETTINGS.heroPortraitUrl,
+      name: branding.name || INITIAL_SITE_SETTINGS.name,
+      location: branding.location || INITIAL_SITE_SETTINGS.location,
+      managerName: contact.manager_name || INITIAL_SITE_SETTINGS.managerName,
+      managerHandle: contact.manager_handle || INITIAL_SITE_SETTINGS.managerHandle,
+      managementEmail: contact.management_email || INITIAL_SITE_SETTINGS.managementEmail,
+      instagramHandle: contact.instagram_handle || INITIAL_SITE_SETTINGS.instagramHandle,
+      youtubeChannel: contact.youtube_channel || INITIAL_SITE_SETTINGS.youtubeChannel,
     };
   } catch {
     const local = localStorage.getItem('supriya_site_settings');
@@ -683,12 +801,175 @@ export async function updateSiteSettings(settings: SiteSettings): Promise<void> 
         value: {
           logo_url: settings.logoUrl || null,
           hero_portrait_url: settings.heroPortraitUrl || null,
+          name: settings.name || 'Supriya Bhavsar',
+          location: settings.location || 'Vadodara, Gujarat',
+        },
+      },
+      {
+        key: 'contact',
+        value: {
+          manager_name: settings.managerName || 'Shlok Brahmbhatt',
+          manager_handle: settings.managerHandle || '@shlok.brahmbhatt',
+          management_email: settings.managementEmail || 'management@supriyabhavsar.com',
+          instagram_handle: settings.instagramHandle || '@supriya_9508',
+          youtube_channel: settings.youtubeChannel || '@supriyabhavsar_yoga',
         },
       },
     ]);
   } catch (err) {
-    console.warn('Supabase sync notice:', err);
+    console.warn('Supabase sync notice on site_settings:', err);
   }
+
+  // Also sync to hero_section table for schema parity
+  try {
+    await supabase.from('hero_section').upsert({
+      id: 'primary',
+      badge: settings.heroBadge,
+      headline: settings.headline,
+      subtext: settings.subtext,
+      primary_cta: settings.primaryCta,
+      secondary_cta: settings.secondaryCta,
+      portrait_url: settings.heroPortraitUrl || null,
+    });
+  } catch (err) {
+    console.warn('Supabase sync notice on hero_section:', err);
+  }
+}
+
+// ----------------------------------------------------------------------
+// BRAND SPONSORS
+// ----------------------------------------------------------------------
+
+export async function getBrandSponsors(): Promise<BrandSponsor[]> {
+  try {
+    const { data, error } = await supabase
+      .from('brand_sponsors')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      const local = localStorage.getItem('supriya_brand_sponsors');
+      if (local) {
+        return JSON.parse(local);
+      }
+      localStorage.setItem('supriya_brand_sponsors', JSON.stringify(INITIAL_BRAND_SPONSORS));
+      return INITIAL_BRAND_SPONSORS;
+    }
+
+    return data.map((d) => ({
+      id: d.id,
+      name: d.name,
+      tagline: d.tagline || undefined,
+      category: d.category || undefined,
+      logoUrl: d.logo_url || undefined,
+      affiliateUrl: d.affiliate_url || undefined,
+      displayOrder: d.display_order ?? 0,
+    }));
+  } catch {
+    const local = localStorage.getItem('supriya_brand_sponsors');
+    if (local) {
+      return JSON.parse(local);
+    }
+    return INITIAL_BRAND_SPONSORS;
+  }
+}
+
+export async function upsertBrandSponsor(sponsor: BrandSponsor): Promise<BrandSponsor> {
+  const current = await getBrandSponsors();
+  const exists = current.some((s) => s.id === sponsor.id);
+  const updated = exists ? current.map((s) => (s.id === sponsor.id ? sponsor : s)) : [...current, sponsor];
+  localStorage.setItem('supriya_brand_sponsors', JSON.stringify(updated));
+
+  try {
+    await supabase.from('brand_sponsors').upsert({
+      id: sponsor.id,
+      name: sponsor.name,
+      tagline: sponsor.tagline || null,
+      category: sponsor.category || null,
+      logo_url: sponsor.logoUrl || null,
+      affiliate_url: sponsor.affiliateUrl || null,
+      display_order: sponsor.displayOrder ?? 0,
+    });
+  } catch (err) {
+    console.warn('Supabase sync notice on brand_sponsors:', err);
+  }
+
+  return sponsor;
+}
+
+export async function deleteBrandSponsor(id: string): Promise<void> {
+  const current = await getBrandSponsors();
+  const updated = current.filter((s) => s.id !== id);
+  localStorage.setItem('supriya_brand_sponsors', JSON.stringify(updated));
+
+  try {
+    await supabase.from('brand_sponsors').delete().eq('id', id);
+  } catch (err) {
+    console.warn('Supabase sync notice on delete brand_sponsor:', err);
+  }
+}
+
+// ----------------------------------------------------------------------
+// DAILY INTENTION
+// ----------------------------------------------------------------------
+
+export async function getDailyIntention(): Promise<DailyIntention> {
+  try {
+    const { data, error } = await supabase
+      .from('daily_intention')
+      .select('*')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      const local = localStorage.getItem('supriya_daily_intention');
+      if (local) {
+        return JSON.parse(local);
+      }
+      localStorage.setItem('supriya_daily_intention', JSON.stringify(INITIAL_DAILY_INTENTION));
+      return INITIAL_DAILY_INTENTION;
+    }
+
+    return {
+      id: data.id,
+      quoteText: data.quote_text || INITIAL_DAILY_INTENTION.quoteText,
+      theme: data.theme || INITIAL_DAILY_INTENTION.theme,
+      sanskritWord: data.sanskrit_word || INITIAL_DAILY_INTENTION.sanskritWord,
+      sanskritMeaning: data.sanskrit_meaning || INITIAL_DAILY_INTENTION.sanskritMeaning,
+      isActive: data.is_active ?? true,
+      updatedAt: data.updated_at || new Date().toISOString(),
+    };
+  } catch {
+    const local = localStorage.getItem('supriya_daily_intention');
+    return local ? JSON.parse(local) : INITIAL_DAILY_INTENTION;
+  }
+}
+
+export async function updateDailyIntention(patch: Partial<DailyIntention>): Promise<DailyIntention> {
+  const current = await getDailyIntention();
+  const updated: DailyIntention = {
+    ...current,
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem('supriya_daily_intention', JSON.stringify(updated));
+
+  try {
+    await supabase.from('daily_intention').upsert({
+      id: updated.id || 'current',
+      quote_text: updated.quoteText,
+      theme: updated.theme || null,
+      sanskrit_word: updated.sanskritWord || null,
+      sanskrit_meaning: updated.sanskritMeaning || null,
+      is_active: updated.isActive ?? true,
+      updated_at: updated.updatedAt,
+    });
+  } catch (err) {
+    console.warn('Supabase sync notice on daily_intention:', err);
+  }
+
+  return updated;
 }
 
 // ----------------------------------------------------------------------
