@@ -3,45 +3,85 @@
 @theme {
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  --color-sand-50: #FAF8F5;
-  --color-sand-100: #F4EFE6;
-  --color-sand-200: #EADECE;
-  --color-sand-300: #D8C5AF;
-  --color-sand-500: #9E8568;
-  --color-sand-700: #665440;
-  --color-sand-900: #3A2F24;
 
-  --color-sage-50: #F3F6F4;
-  --color-sage-100: #E5ECE7;
-  --color-sage-200: #CBD9D0;
-  --color-sage-400: #8EA89D;
-  --color-sage-600: #4D705E;
-  --color-sage-800: #2C483A;
-  --color-sage-900: #182C22;
+  --color-midnight-950: #07050E;
+  --color-midnight-900: #0B0914;
+  --color-midnight-800: #130E24;
+  --color-midnight-700: #1D1536;
+
+  --color-lotus-500: #A855F7;
+  --color-lotus-400: #C084FC;
+  --color-lotus-300: #E9D5FF;
+  --color-lotus-600: #9333EA;
+
+  --color-celestial-400: #818CF8;
+  --color-celestial-500: #6366F1;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #FAF8F5;
-  color: #26332C;
+  background-color: #0B0914;
+  color: #F8FAFC;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, .font-serif {
   font-family: var(--font-serif);
 }
 
-/* Custom smooth scrollbar */
+/* Glassmorphism helpers - Midnight Lotus Luxury */
+.glass-panel-dark {
+  background: rgba(19, 14, 36, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.14);
+  box-shadow: 0 10px 35px -10px rgba(0, 0, 0, 0.7);
+}
+
+.glass-panel-lotus {
+  background: rgba(26, 18, 48, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  box-shadow: 0 12px 40px -10px rgba(168, 85, 247, 0.18);
+}
+
+/* Glassmorphic White/Silver Button Style */
+.btn-silver-glass {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 50%, #E2E8F0 100%);
+  color: #0B0914;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 18px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-silver-glass:hover {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FAF5FF 60%, #F3E8FF 100%);
+  box-shadow: 0 4px 28px rgba(168, 85, 247, 0.35), 0 2px 10px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom dark scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF8F5;
+  background: #0B0914;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD9D0;
+  background: #251B40;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8EA89D;
+  background: #A855F7;
 }

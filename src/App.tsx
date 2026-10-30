@@ -1,20 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { DynamicIrisBackground } from './components/DynamicIrisBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { ContentHubSection } from './components/ContentHubSection';
+import { GallerySection } from './components/GallerySection';
+import { ContentVaultSection } from './components/ContentVaultSection';
 import { ServicesSection } from './components/ServicesSection';
 import { MindfulnessWidget } from './components/MindfulnessWidget';
 import { AboutNewsletterSection } from './components/AboutNewsletterSection';
+import { BrandMarquee } from './components/BrandMarquee';
+import { TestimonialsSection } from './components/TestimonialsSection';
+import { DailyIntentionSection } from './components/DailyIntentionSection';
 import { Footer } from './components/Footer';
 import { VideoModal } from './components/VideoModal';
+import { InstagramReelModal } from './components/InstagramReelModal';
 import { WaitlistModal } from './components/WaitlistModal';
-import { VideoContent, ServiceItem } from './types';
-import { VIDEO_DATA } from './data/mockData';
+import { AdminDashboard } from './components/AdminDashboard';
+import {
+  VideoContent,
+  InstagramReel,
+  ServiceItem,
+  GalleryImage,
+  WaitlistSubmission,
+  NewsletterSubscriber,
+  SiteSettings,
+  Testimonial,
+} from './types';
+import {
+  getVideos,
+  getReels,
+  getServices,
+  getGallery,
+  getWaitlistSubmissions,
+  getSubscribers,
+  getSiteSettings,
+  getAllTestimonials,
+  INITIAL_SITE_SETTINGS,
+} from './lib/supabase';
+import { Play, Wind, ArrowUpRight, Image as ImageIcon } from 'lucide-react';
 
 export function App() {
+  const [videos, setVideos] = useState<VideoContent[]>([]);
+  const [reels, setReels] = useState<InstagramReel[]>([]);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistSubmission[]>([]);
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(INITIAL_SITE_SETTINGS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
+  const [selectedReel, setSelectedReel] = useState<InstagramReel | null>(null);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('yoga-1on1');
+
+  // Load all data from Supabase / cached store
+  const loadData = async () => {
+    try {
+      const [v, r, s, g, w, n, settings, t] = await Promise.all([
+        getVideos(),
+        getReels(),
+        getServices(),
+        getGallery(),
+        getWaitlistSubmissions(),
+        getSubscribers(),
+        getSiteSettings(),
+        getAllTestimonials(),
+      ]);
+      setVideos(v);
+      setReels(r);
+      setServices(s);
+      setGallery(g);
+      setWaitlist(w);
+      setSubscribers(n);
+      setSiteSettings(settings);
+      setTestimonials(t);
+    } catch (err) {
+      console.warn('Error loading database entities:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const handleOpenWaitlist = (serviceId?: string) => {
     setSelectedServiceId(serviceId || 'yoga-1on1');
@@ -27,12 +96,12 @@ export function App() {
   };
 
   const handleWatchHeroVideo = () => {
-    // Open the featured morning vinyasa video
-    setSelectedVideo(VIDEO_DATA[0]);
+    if (videos.length > 0) {
+      setSelectedVideo(videos[0]);
+    }
   };
 
   const handleStartTraining = () => {
-    // Scroll smoothly to the Services section and open the waitlist
     const el = document.getElementById('services');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -42,48 +111,145 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-[#26332C] flex flex-col font-sans selection:bg-[#CBD9D0] selection:text-[#182C22]">
-      {/* Top Fixed Navigation */}
-      <Navbar onOpenWaitlist={() => handleOpenWaitlist()} />
+    <div className="relative min-h-screen bg-[#0B0914] text-[#F8FAFC] flex flex-col font-sans selection:bg-purple-600/30 selection:text-purple-200">
+      
+      {/* Dark Ambient Canvas Background with Flying Stars & Subtle Midnight Lotus Spheres */}
+      <DynamicIrisBackground />
+
+      {/* Top Fixed Navigation: Single Word Links, Dynamic Logo & Silver Glass CTA */}
+      <Navbar
+        onOpenWaitlist={() => handleOpenWaitlist()}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+        logoUrl={siteSettings.logoUrl}
+      />
 
       {/* Main Content Sections */}
-      <main className="flex-grow">
-        {/* 1. Hero Section (Split layout with headline, subtext, dual CTAs, cutout placeholder) */}
+      <main className="flex-grow relative z-10 pb-16 md:pb-0">
+        {/* 1. Hero Section with Word-by-Word Motion and Dynamic Cutout Frame */}
         <HeroSection
+          siteSettings={siteSettings}
           onStartTraining={handleStartTraining}
           onWatchVideo={handleWatchHeroVideo}
         />
 
-        {/* 2. Organized Content Hub (Latest from Supriya, 3 interactive filter tabs, YouTube-style grid) */}
-        <ContentHubSection onSelectVideo={(video) => setSelectedVideo(video)} />
+        {/* 2. Brand Collaborations Infinite Looping Marquee */}
+        <BrandMarquee />
 
-        {/* 3. Future Monetization Services ('Work With Me', 3 cards, Waitlist triggers) */}
-        <ServicesSection onSelectService={handleSelectService} />
+        {/* 3. 3D Coverflow Drag Carousel Gallery Section (Right Above/Before Content Vault) */}
+        <GallerySection images={gallery} />
 
-        {/* 4. Interactive Mindful Breathwork Pause */}
+        {/* 4. The Content Vault (YouTube Videos Grid + Instagram Reels Masonry) */}
+        <ContentVaultSection
+          videos={videos}
+          reels={reels}
+          onSelectVideo={(video) => setSelectedVideo(video)}
+          onSelectReel={(reel) => setSelectedReel(reel)}
+        />
+
+        {/* 5. Work With Me Services ('Future Monetization' Floating Cards) */}
+        <ServicesSection
+          services={services}
+          onSelectService={handleSelectService}
+        />
+
+        {/* 6. Transformations & Stories Testimonials Section + Submission Form */}
+        <TestimonialsSection
+          testimonials={testimonials}
+          onTestimonialSubmitted={loadData}
+        />
+
+        {/* 7. Interactive Somatic Breathwork Widget */}
         <MindfulnessWidget />
 
-        {/* 5. About & Newsletter (Bio, pillars, clean email capture form) */}
+        {/* 8. About & Newsletter */}
         <AboutNewsletterSection />
+
+        {/* 9. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
+        <DailyIntentionSection />
       </main>
 
-      {/* 6. Footer (Social links, management email, copyright) */}
-      <Footer />
+      {/* 10. Dark Minimalist Footer - Center Aligned on Mobile with Dynamic Logo */}
+      <Footer logoUrl={siteSettings.logoUrl} />
 
-      {/* Modals */}
-      {selectedVideo && (
-        <VideoModal
-          video={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-        />
-      )}
+      {/* Mobile Alternative Quick Action Dock */}
+      <div className="md:hidden fixed bottom-3 inset-x-3 z-40">
+        <div className="bg-[#120D24]/95 backdrop-blur-xl border border-purple-500/25 rounded-2xl p-2 flex items-center justify-between shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
+          <a
+            href="#gallery"
+            className="flex flex-col items-center justify-center py-1 px-2.5 text-[10px] text-slate-300 hover:text-white"
+          >
+            <ImageIcon className="w-4 h-4 mb-0.5 text-purple-400" />
+            <span>Gallery</span>
+          </a>
 
-      {isWaitlistOpen && (
-        <WaitlistModal
-          initialServiceId={selectedServiceId}
-          onClose={() => setIsWaitlistOpen(false)}
-        />
-      )}
+          <a
+            href="#content-vault"
+            className="flex flex-col items-center justify-center py-1 px-2.5 text-[10px] text-slate-300 hover:text-white"
+          >
+            <Play className="w-4 h-4 mb-0.5 text-indigo-400" />
+            <span>Vault</span>
+          </a>
+
+          <a
+            href="#testimonials"
+            className="flex flex-col items-center justify-center py-1 px-2.5 text-[10px] text-slate-300 hover:text-white"
+          >
+            <Wind className="w-4 h-4 mb-0.5 text-purple-300" />
+            <span>Stories</span>
+          </a>
+
+          <button
+            onClick={() => handleOpenWaitlist()}
+            className="flex items-center gap-1 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider btn-silver-glass cursor-pointer"
+          >
+            <span>Waitlist</span>
+            <ArrowUpRight className="w-3 h-3 text-[#0B0914]" />
+          </button>
+        </div>
+      </div>
+
+      {/* Admin Dashboard CMS Modal */}
+      <AdminDashboard
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        videos={videos}
+        reels={reels}
+        services={services}
+        gallery={gallery}
+        waitlist={waitlist}
+        subscribers={subscribers}
+        siteSettings={siteSettings}
+        testimonials={testimonials}
+        onRefreshData={loadData}
+      />
+
+      {/* Interactive Modals with AnimatePresence */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <VideoModal
+            video={selectedVideo}
+            onClose={() => setSelectedVideo(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedReel && (
+          <InstagramReelModal
+            reel={selectedReel}
+            onClose={() => setSelectedReel(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isWaitlistOpen && (
+          <WaitlistModal
+            initialServiceId={selectedServiceId}
+            onClose={() => setIsWaitlistOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

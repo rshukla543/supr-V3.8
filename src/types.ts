@@ -1,4 +1,4 @@
-export type ContentCategory = 'Yoga & Fitness' | 'Lifestyle Vlogs' | 'Shorts/Reels';
+export type ContentCategory = 'Yoga (YouTube)' | 'Lifestyle Vlogs' | 'Reels (Instagram)';
 
 export interface VideoContent {
   id: string;
@@ -13,7 +13,25 @@ export interface VideoContent {
   thumbnailAccent: string;
   accentIcon: 'yoga' | 'vlog' | 'reel';
   videoUrl?: string;
+  customThumbnailUrl?: string;
   chapters?: { time: string; title: string }[];
+}
+
+export interface InstagramReel {
+  id: string;
+  caption: string;
+  creatorHandle: string;
+  audioTrack: string;
+  likesCount: string;
+  commentsCount: string;
+  sharesCount: string;
+  viewsCount: string;
+  duration: string;
+  gradient: string;
+  coverAccent: string;
+  poseName: string;
+  tags: string[];
+  date: string;
 }
 
 export interface ServiceItem {
@@ -29,10 +47,58 @@ export interface ServiceItem {
   type: 'fitness' | 'nutrition' | 'collaboration';
 }
 
+export type GalleryFolder = 'All' | 'Asana & Flow' | 'Studio & Space' | 'Travel & Retreats' | 'Casual & Lifestyle';
+
+export interface GalleryImage {
+  id: string;
+  title: string;
+  folder: 'Asana & Flow' | 'Studio & Space' | 'Travel & Retreats' | 'Casual & Lifestyle';
+  caption: string;
+  gradientHint: string;
+  aspectRatio?: string;
+  displayOrder?: number;
+  imageUrl?: string;
+}
+
+export interface WaitlistSubmission {
+  id: string;
+  serviceId: string;
+  fullName: string;
+  email: string;
+  experienceLevel?: string;
+  goals?: string;
+  status: 'pending' | 'contacted' | 'accepted' | 'archived';
+  createdAt: string;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  interest: string;
+  createdAt: string;
+}
+
+export interface SiteSettings {
+  heroBadge: string;
+  headline: string;
+  subtext: string;
+  primaryCta: string;
+  secondaryCta: string;
+  bioQuote: string;
+  bioStory: string;
+  logoUrl?: string;
+  heroPortraitUrl?: string;
+}
+
 export interface Testimonial {
   id: string;
   name: string;
-  role: string;
-  quote: string;
-  location: string;
+  email: string;
+  message: string;
+  imageUrl?: string;
+  rating?: number;
+  roleOrLocation?: string;
+  isApproved: boolean;
+  createdAt: string;
 }
+

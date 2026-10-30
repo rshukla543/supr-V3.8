@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ServiceItem } from '../types';
+import { motion } from 'framer-motion';
 import { SERVICES_DATA } from '../data/mockData';
-import { X, CheckCircle2, Sparkles, Send, ArrowRight } from 'lucide-react';
+import { saveWaitlistSubmission } from '../lib/supabase';
+import { X, CheckCircle2, Sparkles, Send } from 'lucide-react';
 
 interface WaitlistModalProps {
   initialServiceId?: string;
@@ -32,7 +33,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       setError('Please provide a valid email address.');
@@ -46,39 +47,56 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     setError('');
     setIsSubmitting(true);
 
+    try {
+      await saveWaitlistSubmission({
+        serviceId: selectedServiceId,
+        fullName,
+        email,
+        experienceLevel,
+        goals,
+      });
+    } catch (err) {
+      console.warn('Waitlist save error:', err);
+    }
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 700);
+    }, 400);
   };
 
   const selectedService = SERVICES_DATA.find((s) => s.id === selectedServiceId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#FAF8F5] text-[#26332C] rounded-3xl overflow-hidden border border-[#CBD9D0] shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col">
-        
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 15 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: 15 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-[#0E0A1D] text-[#F8FAFC] rounded-3xl overflow-hidden border border-purple-500/25 shadow-[0_20px_60px_rgba(0,0,0,0.8)] max-w-xl w-full max-h-[90vh] flex flex-col"
+      >
         {/* Modal Header */}
-        <div className="px-6 py-5 bg-[#FAF8F5] border-b border-[#EADECE] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#182C22] text-[#FAF8F5] flex items-center justify-center font-serif text-sm font-semibold">
+        <div className="px-6 py-5 bg-[#150F2B] border-b border-purple-500/20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-serif text-sm font-semibold shadow-md">
               S
             </div>
             <div>
-              <h3 className="font-serif text-lg font-semibold text-[#182C22]">
+              <h3 className="font-serif text-lg font-semibold text-white">
                 {selectedService?.type === 'collaboration'
                   ? 'Brand Partnership Inquiry'
                   : 'Join Private Waitlist'}
               </h3>
-              <p className="text-[11px] text-[#9E8568]">
-                Curated by Supriya • Spring 2026 Season
+              <p className="text-[11px] text-purple-300">
+                Curated by Supriya • Midnight Lotus
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#665440] hover:bg-[#E5ECE7] transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-300 hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Close Modal"
           >
             <X className="w-5 h-5" />
@@ -89,23 +107,24 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
         <div className="p-6 sm:p-8 overflow-y-auto">
           {isSubmitted ? (
             <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-[#E5ECE7] text-[#2C483A] flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full bg-purple-600/20 border border-purple-400 text-purple-300 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(168,85,247,0.4)]">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
-              <h4 className="font-serif text-2xl font-semibold text-[#182C22] mb-2">
+              <h4 className="font-serif text-2xl font-semibold text-white mb-2">
                 You're on the Priority List!
               </h4>
-              <p className="text-sm text-[#665440] max-w-md mx-auto mb-6">
-                Thank you, <span className="font-semibold text-[#182C22]">{fullName}</span>. We've reserved your submission for{' '}
-                <span className="font-semibold text-[#2C483A]">{selectedService?.title}</span>. We review each application personally and will email{' '}
-                <span className="font-semibold text-[#182C22]">{email}</span> within 48 hours.
+              <p className="text-sm text-slate-300 max-w-md mx-auto mb-6">
+                Thank you, <span className="font-semibold text-white">{fullName}</span>. We've reserved your submission for{' '}
+                <span className="font-semibold text-purple-300">{selectedService?.title}</span>. We review each application personally and will email{' '}
+                <span className="font-semibold text-white">{email}</span> within 48 hours.
               </p>
 
-              <div className="p-4 rounded-2xl bg-[#F4EFE6] border border-[#EADECE] text-left max-w-md mx-auto mb-6">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#9E8568] mb-1">
+              <div className="p-4 rounded-2xl bg-white/[0.04] border border-purple-500/20 text-left max-w-md mx-auto mb-6">
+                <p className="text-xs font-bold uppercase tracking-wider text-purple-300 mb-1 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
                   What happens next?
                 </p>
-                <p className="text-xs text-[#665440]">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   1. You will receive a confirmation welcome email with a starter 15-minute alignment sequence.<br />
                   2. For yoga mentorship & nutrition, an intake questionnaire will follow.
                 </p>
@@ -113,26 +132,25 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
 
               <button
                 onClick={onClose}
-                className="px-6 py-3 rounded-full text-xs font-semibold tracking-wider uppercase bg-[#182C22] text-[#FAF8F5] hover:bg-[#2C483A] transition-colors cursor-pointer"
+                className="px-8 py-3.5 rounded-full text-xs font-bold tracking-wider uppercase btn-silver-glass cursor-pointer"
               >
                 Back to Website
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              
               {/* Program Selector */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#665440] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-2">
                   Select Program / Service
                 </label>
                 <select
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-[#CBD9D0] bg-white text-sm text-[#182C22] focus:outline-none focus:ring-2 focus:ring-[#4D705E]"
+                  className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   {SERVICES_DATA.map((service) => (
-                    <option key={service.id} value={service.id}>
+                    <option key={service.id} value={service.id} className="bg-[#150F2B] text-white">
                       {service.title} ({service.subtitle})
                     </option>
                   ))}
@@ -141,7 +159,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
 
               {/* Full Name */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#665440] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-1">
                   Your Full Name
                 </label>
                 <input
@@ -150,13 +168,13 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Maya Sharma"
-                  className="w-full px-4 py-3 rounded-xl border border-[#CBD9D0] bg-white text-sm text-[#182C22] focus:outline-none focus:ring-2 focus:ring-[#4D705E]"
+                  className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#665440] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-1">
                   Email Address
                 </label>
                 <input
@@ -165,40 +183,40 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. maya@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-[#CBD9D0] bg-white text-sm text-[#182C22] focus:outline-none focus:ring-2 focus:ring-[#4D705E]"
+                  className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
-              {/* Conditional Experience or Brand details */}
+              {/* Conditional Experience level */}
               {selectedService?.type !== 'collaboration' ? (
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#665440] mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-1">
                     Movement Experience
                   </label>
                   <select
                     value={experienceLevel}
                     onChange={(e) => setExperienceLevel(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-[#CBD9D0] bg-white text-sm text-[#182C22] focus:outline-none focus:ring-2 focus:ring-[#4D705E]"
+                    className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="Complete Beginner (Never stepped on a mat)">
+                    <option value="Complete Beginner (Never stepped on a mat)" className="bg-[#150F2B]">
                       Complete Beginner (Never stepped on a mat)
                     </option>
-                    <option value="Beginner / Intermediate (Practices 1-2x/week)">
+                    <option value="Beginner / Intermediate (Practices 1-2x/week)" className="bg-[#150F2B]">
                       Beginner / Intermediate (Practices 1-2x/week)
                     </option>
-                    <option value="Consistent Yogi (Daily flow / injury rehab focus)">
+                    <option value="Consistent Yogi (Daily flow / injury rehab focus)" className="bg-[#150F2B]">
                       Consistent Yogi (Daily flow / injury rehab focus)
                     </option>
-                    <option value="Advanced / Teacher Training Student">
+                    <option value="Advanced / Teacher Training Student" className="bg-[#150F2B]">
                       Advanced / Teacher Training Student
                     </option>
                   </select>
                 </div>
               ) : null}
 
-              {/* Message / Goals */}
+              {/* Goals / Message */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#665440] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-300 mb-1">
                   {selectedService?.type === 'collaboration'
                     ? 'Brand Overview & Campaign Timeline'
                     : 'Primary Health or Lifestyle Goal'}
@@ -210,23 +228,25 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                   placeholder={
                     selectedService?.type === 'collaboration'
                       ? 'Tell us about your brand, campaign vision, and proposed deliverable window...'
-                      : 'e.g. Relieving chronic lower back ache, building daily routine, mindfulness...'
+                      : 'e.g. Relieving chronic lower back ache, building daily routine, somatic calm...'
                   }
-                  className="w-full px-4 py-3 rounded-xl border border-[#CBD9D0] bg-white text-sm text-[#182C22] focus:outline-none focus:ring-2 focus:ring-[#4D705E] resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
               </div>
 
-              {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+              {error && <p className="text-xs text-rose-400 font-medium">{error}</p>}
 
-              {/* Submit Button */}
+              {/* Submit CTA: Glassmorphic White/Silver */}
               <div className="pt-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-full text-xs font-semibold tracking-wider uppercase bg-[#182C22] text-[#FAF8F5] hover:bg-[#2C483A] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-60"
+                  className="w-full py-4 rounded-full text-xs font-bold tracking-wider uppercase btn-silver-glass flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>Securing Your Spot...</span>
+                    <span>Reserving Your Seat...</span>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
@@ -237,17 +257,16 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                       </span>
                     </>
                   )}
-                </button>
+                </motion.button>
               </div>
 
-              <p className="text-center text-[11px] text-[#9E8568]">
-                We respect your privacy. No spam. You may withdraw at any time.
+              <p className="text-center text-[11px] text-slate-400">
+                We respect your confidentiality. Zero spam. Cancel anytime.
               </p>
             </form>
           )}
         </div>
-
-      </div>
+      </motion.div>
     </div>
   );
 };
