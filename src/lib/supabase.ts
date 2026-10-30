@@ -25,69 +25,300 @@ const supabaseAnonKey =
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const INITIAL_GALLERY_IMAGES: GalleryImage[] = [
+  // 1. Asana & Flow (8 images)
   {
-    id: 'gal-1',
+    id: 'gal-asana-1',
     title: 'Urdhva Dhanurasana (Wheel Pose)',
     folder: 'Asana & Flow',
-    caption: 'Deep thoracic spine expansion at sunrise over the sacred Ganges.',
+    caption: 'Deep thoracic spine expansion at sunrise over the sacred Ganges river.',
     gradientHint: 'from-purple-950/80 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80',
     displayOrder: 1,
   },
   {
-    id: 'gal-2',
+    id: 'gal-asana-2',
     title: 'Natarajasana (Lord of the Dance)',
     folder: 'Asana & Flow',
-    caption: 'Finding poise, pelvic alignment, and an unwavering focal drishti.',
+    caption: 'Finding poised pelvic alignment and an unwavering focal drishti.',
     gradientHint: 'from-indigo-950/80 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
     displayOrder: 2,
   },
   {
-    id: 'gal-3',
-    title: 'Himalayan Altar & Singing Bowls',
-    folder: 'Studio & Space',
-    caption: 'Hand-hammered brass bells, palo santo, and linen mats.',
-    gradientHint: 'from-purple-900/60 via-slate-950 to-black',
+    id: 'gal-asana-3',
+    title: 'Bakasana (Crow Pose) Float',
+    folder: 'Asana & Flow',
+    caption: 'Core suspension, wrist engagement, and shoulder protraction mechanics.',
+    gradientHint: 'from-violet-950/80 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=800&q=80',
     displayOrder: 3,
   },
   {
-    id: 'gal-4',
-    title: 'Minimalist Bamboo Studio Nook',
-    folder: 'Studio & Space',
-    caption: 'Natural morning light calibrated for circadian presence and quietude.',
-    gradientHint: 'from-slate-900 via-purple-950/50 to-black',
+    id: 'gal-asana-4',
+    title: 'Eka Pada Rajakapotasana (King Pigeon)',
+    folder: 'Asana & Flow',
+    caption: 'Releasing stored emotional psoas tension with deep breath cycles.',
+    gradientHint: 'from-purple-900/70 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
     displayOrder: 4,
   },
   {
-    id: 'gal-5',
-    title: 'Ubud Rice Terrace Meditation',
-    folder: 'Travel & Retreats',
-    caption: 'Mid-morning stillness enveloped by tropical mist and birdsong.',
-    gradientHint: 'from-indigo-950/70 via-purple-950/40 to-black',
+    id: 'gal-asana-5',
+    title: 'Pincha Mayurasana (Forearm Balance)',
+    folder: 'Asana & Flow',
+    caption: 'Inversion practice defying gravity with focused spinal stacking.',
+    gradientHint: 'from-indigo-900/70 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=800&q=80',
     displayOrder: 5,
   },
   {
-    id: 'gal-6',
-    title: 'Ganges River Ghats at Dawn',
-    folder: 'Travel & Retreats',
-    caption: 'Chanting ancient mantras along the misty riverbanks of Rishikesh.',
-    gradientHint: 'from-purple-950/70 via-slate-950 to-black',
+    id: 'gal-asana-6',
+    title: 'Virabhadrasana III (Warrior III)',
+    folder: 'Asana & Flow',
+    caption: 'Grounding single-leg stability, glute firing, and horizontal energy line.',
+    gradientHint: 'from-violet-900/70 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80',
     displayOrder: 6,
   },
   {
-    id: 'gal-7',
-    title: 'Ceremonial Matcha & Journaling',
-    folder: 'Casual & Lifestyle',
-    caption: 'Slow mornings without screens, emails, or external notifications.',
-    gradientHint: 'from-purple-900/50 via-slate-900 to-black',
+    id: 'gal-asana-7',
+    title: 'Paschimottanasana (Seated Forward Bend)',
+    folder: 'Asana & Flow',
+    caption: 'Gentle somatic hamstring unwinding and introspective stillness.',
+    gradientHint: 'from-purple-950/80 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
     displayOrder: 7,
   },
   {
-    id: 'gal-8',
-    title: 'Organic Herbal Infusions',
-    folder: 'Casual & Lifestyle',
-    caption: 'Vibrant Ayurvedic tulsi and golden turmeric roots brewed for balance.',
-    gradientHint: 'from-purple-950/70 via-slate-900 to-black',
+    id: 'gal-asana-8',
+    title: 'Vrikshasana (Tree Pose at Dawn)',
+    folder: 'Asana & Flow',
+    caption: 'Rooting into earth like an ancient banyan tree in Vadodara.',
+    gradientHint: 'from-slate-900 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1510894347713-fc3ed6fdf539?auto=format&fit=crop&w=800&q=80',
     displayOrder: 8,
+  },
+
+  // 2. Studio & Space (8 images)
+  {
+    id: 'gal-studio-1',
+    title: 'Himalayan Singing Bowls & Brass Altar',
+    folder: 'Studio & Space',
+    caption: 'Hand-hammered brass bells, sacred incense, and linen meditation props.',
+    gradientHint: 'from-purple-900/60 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 9,
+  },
+  {
+    id: 'gal-studio-2',
+    title: 'Minimalist Bamboo Studio Nook',
+    folder: 'Studio & Space',
+    caption: 'Natural morning diffused light calibrated for circadian stillness.',
+    gradientHint: 'from-slate-900 via-purple-950/50 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 10,
+  },
+  {
+    id: 'gal-studio-3',
+    title: 'Aura Quartz & Botanical Aromatics',
+    folder: 'Studio & Space',
+    caption: 'Pure lavender mist and selenite crystals cleansing the shala air.',
+    gradientHint: 'from-purple-950/70 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1608248597359-2e67d268d8ef?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 11,
+  },
+  {
+    id: 'gal-studio-4',
+    title: 'Organic Cork Mats & Cotton Bolsters',
+    folder: 'Studio & Space',
+    caption: 'Sustainable natural studio essentials providing non-slip tactile grounding.',
+    gradientHint: 'from-indigo-950/60 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 12,
+  },
+  {
+    id: 'gal-studio-5',
+    title: 'Somatic Sound Bath Sanctorum',
+    folder: 'Studio & Space',
+    caption: 'Acoustic sanctuary setting resonance frequencies at 432Hz theta state.',
+    gradientHint: 'from-violet-950/80 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 13,
+  },
+  {
+    id: 'gal-studio-6',
+    title: 'Zen Garden & Lotus Terracotta Basin',
+    folder: 'Studio & Space',
+    caption: 'Water elements bringing negative ions and serene micro-climate inside.',
+    gradientHint: 'from-purple-900/60 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 14,
+  },
+  {
+    id: 'gal-studio-7',
+    title: 'Palo Santo & Beeswax Candle Ritual',
+    folder: 'Studio & Space',
+    caption: 'Smokeless burning rituals anchoring mental transitions into quietude.',
+    gradientHint: 'from-amber-950/60 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 15,
+  },
+  {
+    id: 'gal-studio-8',
+    title: 'Vadodara Heritage Shala Arches',
+    folder: 'Studio & Space',
+    caption: 'Historic architectural geometry framing contemplative private sessions.',
+    gradientHint: 'from-slate-900 via-indigo-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1524863479829-916d8e77f114?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 16,
+  },
+
+  // 3. Travel & Retreats (8 images)
+  {
+    id: 'gal-travel-1',
+    title: 'Rishikesh Dawn Ghats Chanting',
+    folder: 'Travel & Retreats',
+    caption: 'Misty banks of the holy river where classical Vinyasa was born.',
+    gradientHint: 'from-purple-950/70 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 17,
+  },
+  {
+    id: 'gal-travel-2',
+    title: 'Ubud Rice Terrace Meditation',
+    folder: 'Travel & Retreats',
+    caption: 'Mid-morning stillness enveloped by tropical canopy mist and birdsong.',
+    gradientHint: 'from-indigo-950/70 via-purple-950/40 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 18,
+  },
+  {
+    id: 'gal-travel-3',
+    title: 'Dharamshala Mountain Shala',
+    folder: 'Travel & Retreats',
+    caption: 'Crisp cedar air and pine scents filling lungs during silent walking meditation.',
+    gradientHint: 'from-slate-900 via-purple-950/60 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 19,
+  },
+  {
+    id: 'gal-travel-4',
+    title: 'Varkala Cliffside Sunset Flow',
+    folder: 'Travel & Retreats',
+    caption: 'Ocean waves crashing below as we flow through evening Chandra Namaskar.',
+    gradientHint: 'from-purple-900/80 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 20,
+  },
+  {
+    id: 'gal-travel-5',
+    title: 'Ladakh High-Altitude Pranayama',
+    folder: 'Travel & Retreats',
+    caption: 'Breathing consciously at 11,000 feet amidst barren Himalayan beauty.',
+    gradientHint: 'from-indigo-950 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 21,
+  },
+  {
+    id: 'gal-travel-6',
+    title: 'Gokarna Beachside Yin Sessions',
+    folder: 'Travel & Retreats',
+    caption: 'Soft golden sands providing gentle yielding support for restorative postures.',
+    gradientHint: 'from-amber-950/70 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 22,
+  },
+  {
+    id: 'gal-travel-7',
+    title: 'Himalayan Forest Bathing (Shinrin-yoku)',
+    folder: 'Travel & Retreats',
+    caption: 'Absorbing phytoncides and tuning nervous system to natural rhythms.',
+    gradientHint: 'from-slate-900 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 23,
+  },
+  {
+    id: 'gal-travel-8',
+    title: 'Spiti Valley Monastic Stillness',
+    folder: 'Travel & Retreats',
+    caption: 'Timeless monastery silence cultivating deep, unshakeable equanimity.',
+    gradientHint: 'from-indigo-950/80 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 24,
+  },
+
+  // 4. Casual & Lifestyle (8 images)
+  {
+    id: 'gal-life-1',
+    title: 'Ceremonial Matcha & Morning Journal',
+    folder: 'Casual & Lifestyle',
+    caption: 'Slow mornings without screens, emails, or sensory overload.',
+    gradientHint: 'from-purple-900/50 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 25,
+  },
+  {
+    id: 'gal-life-2',
+    title: 'Organic Herbal Ayurvedic Infusions',
+    folder: 'Casual & Lifestyle',
+    caption: 'Vibrant tulsi leaves and golden turmeric brewed for internal vitality.',
+    gradientHint: 'from-purple-950/70 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 26,
+  },
+  {
+    id: 'gal-life-3',
+    title: 'Vadodara Sunset Walk & Contemplation',
+    folder: 'Casual & Lifestyle',
+    caption: 'Golden hour strolls along tranquil Sayaji Baug gardens.',
+    gradientHint: 'from-amber-950/50 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 27,
+  },
+  {
+    id: 'gal-life-4',
+    title: 'Sattvic Nourishment Harvest Bowl',
+    folder: 'Casual & Lifestyle',
+    caption: 'Seasonal roasted roots, tahini, sprouting greens, and pomegranate seeds.',
+    gradientHint: 'from-indigo-950/60 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 28,
+  },
+  {
+    id: 'gal-life-5',
+    title: 'Linen Loungewear & Reading Altar',
+    folder: 'Casual & Lifestyle',
+    caption: 'Comfortable natural fibers honoring breathability and ease.',
+    gradientHint: 'from-purple-900/60 via-slate-900 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 29,
+  },
+  {
+    id: 'gal-life-6',
+    title: 'Cacao Ceremony & Community Circle',
+    folder: 'Casual & Lifestyle',
+    caption: 'Heart-opening raw heirloom cacao shared with fellow seekers.',
+    gradientHint: 'from-violet-950/70 via-slate-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 30,
+  },
+  {
+    id: 'gal-life-7',
+    title: 'Circadian Sunlight Gaze Routine',
+    folder: 'Casual & Lifestyle',
+    caption: 'Setting morning cortisol cues naturally with early photon exposure.',
+    gradientHint: 'from-amber-950/60 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 31,
+  },
+  {
+    id: 'gal-life-8',
+    title: 'Evening Digital Detox & Herbal Bath',
+    folder: 'Casual & Lifestyle',
+    caption: 'Epsom salts, essential rosemary oils, and unconditional silence.',
+    gradientHint: 'from-slate-900 via-purple-950 to-black',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
+    displayOrder: 32,
   },
 ];
 
@@ -148,11 +379,22 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: 'test-4',
-    name: 'Vikram Malhotra',
-    email: 'vikram.m@zenithmedia.in',
-    roleOrLocation: 'Creative Director • Bengaluru',
+    name: 'Devanshi Joshi',
+    email: 'devanshi.joshi@designstudio.in',
+    roleOrLocation: 'Architect & Asana Practitioner • Ahmedabad, Gujarat',
     rating: 5,
-    message: 'Her breathwork sessions before our brand retreat completely rewired our collective focus. Supriya brings a grounded calmness that cuts straight through modern noise. An extraordinary teacher and conscious creator.',
+    message: 'Supriya’s morning alignment routines cleared my chronic neck and shoulder stiffness. Her classes are pure medicine—she bridges traditional Patanjali philosophy with modern spinal ergonomics seamlessly.',
+    imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+    isApproved: true,
+    createdAt: '2025-02-24T11:00:00Z',
+  },
+  {
+    id: 'test-5',
+    name: 'Chirag Mehta',
+    email: 'chirag.mehta@barodafit.com',
+    roleOrLocation: 'CrossFit Athlete & Breathwork Student • Vadodara, Gujarat',
+    rating: 5,
+    message: 'Coming from high-intensity lifting, I had severely tight hips and shallow breathing. Supriya taught me how to actually utilize diaphragmatic breath to double my mobility and recovery speed.',
     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     isApproved: true,
     createdAt: '2025-03-01T16:45:00Z',
@@ -370,6 +612,7 @@ export async function getReels(): Promise<InstagramReel[]> {
       poseName: item.pose_name,
       tags: item.tags || [],
       date: item.date,
+      reelUrl: item.reel_url || item.reelUrl || undefined,
     }));
   } catch {
     const local = localStorage.getItem('supriya_reels');
@@ -399,6 +642,7 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
       pose_name: reel.poseName,
       tags: reel.tags,
       date: reel.date,
+      reel_url: reel.reelUrl || null,
     });
   } catch (err) {
     console.warn('Supabase sync notice:', err);
@@ -974,7 +1218,19 @@ export async function updateDailyIntention(patch: Partial<DailyIntention>): Prom
 
 // ----------------------------------------------------------------------
 // TESTIMONIALS (Transformations & Stories + Review Moderation)
-// ----------------------------------------------------------------------
+function cleanIndianTestimonials(items: Testimonial[]): Testimonial[] {
+  const hasForeign = items.some(
+    (t) =>
+      t.name.toLowerCase().includes('elena') ||
+      t.name.toLowerCase().includes('marcus') ||
+      t.name.toLowerCase().includes('rostova')
+  );
+  if (hasForeign) {
+    localStorage.setItem('supriya_testimonials', JSON.stringify(INITIAL_TESTIMONIALS));
+    return INITIAL_TESTIMONIALS;
+  }
+  return items;
+}
 
 export async function getApprovedTestimonials(): Promise<Testimonial[]> {
   try {
@@ -987,13 +1243,13 @@ export async function getApprovedTestimonials(): Promise<Testimonial[]> {
     if (error || !data || data.length === 0) {
       const local = localStorage.getItem('supriya_testimonials');
       if (local) {
-        const parsed: Testimonial[] = JSON.parse(local);
+        const parsed: Testimonial[] = cleanIndianTestimonials(JSON.parse(local));
         return parsed.filter((t) => t.isApproved);
       }
       return INITIAL_TESTIMONIALS.filter((t) => t.isApproved);
     }
 
-    return data.map((t) => ({
+    const fetched = data.map((t) => ({
       id: String(t.id),
       name: t.name,
       email: t.email,
@@ -1004,10 +1260,11 @@ export async function getApprovedTestimonials(): Promise<Testimonial[]> {
       isApproved: Boolean(t.is_approved),
       createdAt: t.created_at || new Date().toISOString(),
     }));
+    return cleanIndianTestimonials(fetched);
   } catch {
     const local = localStorage.getItem('supriya_testimonials');
     if (local) {
-      const parsed: Testimonial[] = JSON.parse(local);
+      const parsed: Testimonial[] = cleanIndianTestimonials(JSON.parse(local));
       return parsed.filter((t) => t.isApproved);
     }
     return INITIAL_TESTIMONIALS.filter((t) => t.isApproved);
@@ -1024,13 +1281,13 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
     if (error || !data || data.length === 0) {
       const local = localStorage.getItem('supriya_testimonials');
       if (local) {
-        return JSON.parse(local);
+        return cleanIndianTestimonials(JSON.parse(local));
       }
       localStorage.setItem('supriya_testimonials', JSON.stringify(INITIAL_TESTIMONIALS));
       return INITIAL_TESTIMONIALS;
     }
 
-    return data.map((t) => ({
+    const fetched = data.map((t) => ({
       id: String(t.id),
       name: t.name,
       email: t.email,
@@ -1041,10 +1298,11 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
       isApproved: Boolean(t.is_approved),
       createdAt: t.created_at || new Date().toISOString(),
     }));
+    return cleanIndianTestimonials(fetched);
   } catch {
     const local = localStorage.getItem('supriya_testimonials');
     if (local) {
-      return JSON.parse(local);
+      return cleanIndianTestimonials(JSON.parse(local));
     }
     localStorage.setItem('supriya_testimonials', JSON.stringify(INITIAL_TESTIMONIALS));
     return INITIAL_TESTIMONIALS;

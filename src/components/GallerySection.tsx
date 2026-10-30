@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GalleryImage, GalleryFolder } from '../types';
 import { ChevronLeft, ChevronRight, X, Maximize2, Compass, Sparkles, Image as ImageIcon } from 'lucide-react';
@@ -12,6 +12,8 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
   const [activeIdx, setActiveIdx] = useState(0);
   const [lightboxImage, setLightboxImage] = useState<GalleryImage | null>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const isDragging = useRef(false);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -27,35 +29,52 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
     'Casual & Lifestyle',
   ];
 
-  const filteredImages = activeFolder === 'All'
-    ? images
-    : images.filter((img) => img.folder === activeFolder);
+  const filteredImages = useMemo(() => {
+    return activeFolder === 'All'
+      ? images
+      : images.filter((img) => img.folder === activeFolder);
+  }, [images, activeFolder]);
 
-  // Initialize centered on middle image when images populate
+  // Center the carousel so left and right sides are populated on initial render and folder change
   useEffect(() => {
     if (filteredImages.length > 0) {
-      // Pick a balanced center index (e.g., index 1 or 2 if multiple items exist)
-      const centerInitial = Math.floor(filteredImages.length / 2);
-      setActiveIdx(centerInitial);
+      if (!hasInitialized.current) {
+        // Start centered on initial load
+        const centerIdx = Math.floor(filteredImages.length / 2);
+        setActiveIdx(centerIdx);
+        hasInitialized.current = true;
+      } else {
+        // Clamp or center
+        setActiveIdx((prev) => Math.min(Math.max(0, prev), filteredImages.length - 1));
+      }
+    } else {
+      setActiveIdx(0);
     }
-  }, [filteredImages.length, activeFolder]);
+  }, [filteredImages.length]);
 
-  // Clamp index safely
   const safeActiveIdx = Math.min(
     Math.max(0, activeIdx),
     Math.max(0, filteredImages.length - 1)
   );
 
   const handlePrev = () => {
+    if (filteredImages.length <= 1) return;
     setActiveIdx((prev) => (prev > 0 ? prev - 1 : filteredImages.length - 1));
   };
 
   const handleNext = () => {
+    if (filteredImages.length <= 1) return;
     setActiveIdx((prev) => (prev < filteredImages.length - 1 ? prev + 1 : 0));
   };
 
   const handleFolderChange = (folder: GalleryFolder) => {
     setActiveFolder(folder);
+    const nextList = folder === 'All' ? images : images.filter((img) => img.folder === folder);
+    if (nextList.length > 0) {
+      setActiveIdx(Math.floor(nextList.length / 2));
+    } else {
+      setActiveIdx(0);
+    }
   };
 
   // Keyboard Escape listener for lightbox modal
@@ -67,49 +86,51 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
     };
     if (lightboxImage) {
       window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
     }
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
     };
   }, [lightboxImage, filteredImages.length]);
 
   const isMobile = windowWidth < 640;
-  const slideSpacing = isMobile ? 190 : 270;
+  const slideSpacing = isMobile ? 200 : 280;
 
   return (
     <section id="gallery" className="py-20 md:py-28 relative z-10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-purple-500/15 pb-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-purple-500/25 text-purple-300 text-xs font-semibold tracking-wider uppercase mb-3 backdrop-blur-md">
-              <Compass className="w-3.5 h-3.5 text-purple-300" />
-              <span>Visual Archive & Lifestyle</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
-              Captured Moments
-            </h2>
-            <p className="mt-2 text-sm text-slate-300/80 max-w-xl">
-              From sacred sunrise asanas in Rishikesh to minimal studio mornings and conscious travel chronicles.
-            </p>
+        {/* Centered Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-purple-500/25 text-purple-300 text-xs font-semibold tracking-wider uppercase mb-3 backdrop-blur-md">
+            <Compass className="w-3.5 h-3.5 text-purple-300" />
+            <span>Visual Archive & Lifestyle</span>
           </div>
+          
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
+            Captured Moments
+          </h2>
+          
+          <p className="mt-3 text-sm sm:text-base text-slate-300/80 max-w-xl mx-auto leading-relaxed">
+            From sacred sunrise asanas in Rishikesh to minimal studio mornings and conscious travel chronicles.
+          </p>
 
-          {/* Carousel Controls */}
-          <div className="mt-6 md:mt-0 flex items-center gap-3">
-            <span className="text-xs text-purple-300/70 hidden sm:inline mr-2 font-mono">
-              3D Coverflow • Drag or Click
-            </span>
+          {/* Carousel Interactive Controls (Centered) */}
+          <div className="mt-6 flex items-center justify-center gap-4">
             <button
+              type="button"
               onClick={handlePrev}
               className="p-3 rounded-full bg-white/[0.04] border border-purple-500/20 text-slate-200 hover:text-white hover:bg-purple-500/20 hover:border-purple-400/50 transition-all cursor-pointer shadow-sm active:scale-95"
               aria-label="Previous Slide"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
+            
+            <span className="text-xs text-purple-300/70 font-mono tracking-wider px-3 py-1 rounded-full bg-black/30 border border-purple-500/20">
+              {filteredImages.length > 0 ? `${safeActiveIdx + 1} of ${filteredImages.length}` : '0 of 0'} • Swipe or Click
+            </span>
+
             <button
+              type="button"
               onClick={handleNext}
               className="p-3 rounded-full bg-white/[0.04] border border-purple-500/20 text-slate-200 hover:text-white hover:bg-purple-500/20 hover:border-purple-400/50 transition-all cursor-pointer shadow-sm active:scale-95"
               aria-label="Next Slide"
@@ -119,14 +140,15 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
           </div>
         </div>
 
-        {/* Folder Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-10">
+        {/* Centered Folder Filter Tabs */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-10">
           {folders.map((folder) => {
             const isActive = activeFolder === folder;
             const count = folder === 'All' ? images.length : images.filter((i) => i.folder === folder).length;
             return (
               <button
                 key={folder}
+                type="button"
                 onClick={() => handleFolderChange(folder)}
                 className={`relative px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer whitespace-nowrap ${
                   isActive
@@ -152,8 +174,27 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
           })}
         </div>
 
-        {/* 3D Coverflow Carousel Stage */}
-        <div className="relative h-[460px] sm:h-[520px] w-full overflow-hidden select-none [perspective:1400px]">
+        {/* 3D Coverflow Carousel Stage with Silky Drag Gestures */}
+        <motion.div
+          className="relative h-[470px] sm:h-[530px] w-full overflow-hidden select-none [perspective:1400px] cursor-grab active:cursor-grabbing"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.15}
+          onDragStart={() => {
+            isDragging.current = true;
+          }}
+          onDragEnd={(_, info) => {
+            setTimeout(() => {
+              isDragging.current = false;
+            }, 120);
+
+            if (info.offset.x < -35 || info.velocity.x < -200) {
+              handleNext();
+            } else if (info.offset.x > 35 || info.velocity.x > 200) {
+              handlePrev();
+            }
+          }}
+        >
           {filteredImages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-2">
               <ImageIcon className="w-8 h-8 text-purple-400/50" />
@@ -169,15 +210,15 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                 if (Math.abs(offset) > 4) return null;
 
                 const xTranslation = offset * slideSpacing;
-                const scale = isCenter ? 1.06 : Math.max(0.72, 1 - Math.abs(offset) * 0.12);
-                const opacity = isCenter ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.25);
-                const rotateY = offset * -15;
-                const zIndex = 35 - Math.abs(offset);
+                const scale = isCenter ? 1.05 : Math.max(0.72, 1 - Math.abs(offset) * 0.12);
+                const opacity = isCenter ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.22);
+                const rotateY = offset * -14;
+                const zIndex = 40 - Math.abs(offset);
 
                 return (
                   <motion.div
                     key={img.id}
-                    className="absolute top-1/2 left-1/2 w-72 sm:w-84 aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer"
+                    className="absolute top-1/2 left-1/2 w-72 sm:w-84 aspect-[4/5] rounded-3xl overflow-hidden pointer-events-auto"
                     style={{
                       zIndex,
                     }}
@@ -190,17 +231,11 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                     }}
                     transition={{
                       type: 'spring',
-                      stiffness: 100,
-                      damping: 15,
-                    }}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.2}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x < -35) handleNext();
-                      else if (info.offset.x > 35) handlePrev();
+                      stiffness: 140,
+                      damping: 18,
                     }}
                     onClick={() => {
+                      if (isDragging.current) return;
                       if (isCenter) {
                         setLightboxImage(img);
                       } else {
@@ -209,10 +244,11 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                     }}
                   >
                     <div
-                      className={`relative w-full h-full rounded-3xl overflow-hidden bg-[#130E24] p-5 flex flex-col justify-between transition-all duration-300 ${
+                      onContextMenu={(e) => e.preventDefault()}
+                      className={`relative w-full h-full rounded-3xl overflow-hidden bg-[#130E24] p-5 flex flex-col justify-between transition-all duration-300 select-none ${
                         isCenter
                           ? 'border-2 border-purple-400/70 shadow-[0_20px_60px_rgba(168,85,247,0.35)]'
-                          : 'border border-purple-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.7)]'
+                          : 'border border-purple-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.7)] hover:border-purple-400/40'
                       }`}
                     >
                       {/* Image background if URL exists, else gradient hint */}
@@ -220,7 +256,10 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                         <img
                           src={img.imageUrl}
                           alt={img.title}
-                          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                          draggable={false}
+                          onContextMenu={(e) => e.preventDefault()}
+                          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105 pointer-events-none select-none"
+                          loading="lazy"
                         />
                       ) : (
                         <>
@@ -266,7 +305,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
               })}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Sleek Pagination Dots */}
         {filteredImages.length > 1 && (
@@ -276,6 +315,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
               return (
                 <button
                   key={dotIdx}
+                  type="button"
                   onClick={() => setActiveIdx(dotIdx)}
                   className={`transition-all duration-300 cursor-pointer ${
                     isSelected
@@ -300,9 +340,9 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
           >
             <motion.div
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.92, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              exit={{ opacity: 0, scale: 0.92, y: 15 }}
               transition={{ type: 'spring', stiffness: 280, damping: 25 }}
               className="relative max-w-2xl w-full rounded-3xl overflow-hidden bg-[#110D20] border border-purple-500/40 p-6 sm:p-7 shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col max-h-[92vh]"
             >
@@ -315,6 +355,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                 
                 {/* Highly Visible, Prominent Close Button */}
                 <button
+                  type="button"
                   onClick={() => setLightboxImage(null)}
                   className="p-2 rounded-full bg-white/10 hover:bg-purple-600 text-white border border-white/20 hover:border-purple-400 transition-all cursor-pointer shadow-lg active:scale-95 group"
                   aria-label="Close Preview"
@@ -329,7 +370,9 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                   <img
                     src={lightboxImage.imageUrl}
                     alt={lightboxImage.title}
-                    className="w-full h-full object-contain"
+                    draggable={false}
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="w-full h-full object-contain pointer-events-none select-none"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-white/[0.05] border border-purple-400/20 flex items-center justify-center text-4xl font-serif text-white mb-4 shadow-inner">
@@ -351,9 +394,10 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
               {/* Footer row */}
               <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
                 <span className="font-mono text-[11px] text-purple-300/80">
-                  Supriya Visual Archive • Midnight Lotus
+                  Supriya Visual Archive • Vadodara, Gujarat
                 </span>
                 <button
+                  type="button"
                   onClick={() => setLightboxImage(null)}
                   className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-colors cursor-pointer text-xs"
                 >

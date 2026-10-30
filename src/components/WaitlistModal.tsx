@@ -33,6 +33,8 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  const [hasConsent, setHasConsent] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
@@ -41,6 +43,10 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
     }
     if (!fullName.trim()) {
       setError('Please provide your name.');
+      return;
+    }
+    if (!hasConsent) {
+      setError('Please consent to processing under India DPDP Act, 2023.');
       return;
     }
 
@@ -232,6 +238,21 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                   }
                   className="w-full px-4 py-3 rounded-xl border border-purple-500/20 bg-[#160F2C] text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
                 />
+              </div>
+
+              {/* India DPDP Act 2023 Consent Checkbox */}
+              <div className="p-3.5 rounded-xl bg-purple-950/25 border border-purple-500/20 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="dpdp-consent-waitlist"
+                  required
+                  checked={hasConsent}
+                  onChange={(e) => setHasConsent(e.target.checked)}
+                  className="mt-1 w-4 h-4 rounded border-purple-500/40 bg-[#160F2C] text-purple-600 focus:ring-purple-500 cursor-pointer"
+                />
+                <label htmlFor="dpdp-consent-waitlist" className="text-[11px] sm:text-xs text-slate-300 leading-snug cursor-pointer">
+                  I give informed consent under India's <strong className="text-white">DPDP Act, 2023</strong> for Supriya Bhavsar to process my contact details for reservations and private consultations.
+                </label>
               </div>
 
               {error && <p className="text-xs text-rose-400 font-medium">{error}</p>}

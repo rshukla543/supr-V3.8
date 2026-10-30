@@ -9,11 +9,16 @@ export const AboutNewsletterSection: React.FC = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [hasConsent, setHasConsent] = useState(false);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+    if (!hasConsent) {
+      setErrorMessage('Please consent to receiving mindful emails under India DPDP Act, 2023.');
       return;
     }
     setErrorMessage('');
@@ -216,6 +221,21 @@ export const AboutNewsletterSection: React.FC = () => {
                       {errorMessage && (
                         <p className="text-xs text-rose-400 mt-1 font-medium">{errorMessage}</p>
                       )}
+                    </div>
+
+                    {/* India DPDP Act 2023 Consent Checkbox */}
+                    <div className="p-3 rounded-xl bg-purple-950/25 border border-purple-500/20 flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        id="dpdp-consent-newsletter"
+                        required
+                        checked={hasConsent}
+                        onChange={(e) => setHasConsent(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-purple-500/40 bg-[#160F2C] text-purple-600 focus:ring-purple-500 cursor-pointer"
+                      />
+                      <label htmlFor="dpdp-consent-newsletter" className="text-[11px] text-slate-300 leading-snug cursor-pointer">
+                        I consent under India's <strong className="text-white">DPDP Act, 2023</strong> to receive weekly wellness letters. Unsubscribe anytime.
+                      </label>
                     </div>
 
                     {/* Primary Button: Glassmorphic White/Silver with Violet Hover Glow */}

@@ -23,7 +23,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist, onOpenAdmin, log
   // Strict requirement: single-word links
   const navLinks = [
     { name: 'Gallery', href: '#gallery' },
-    { name: 'Vault', href: '#content-vault' },
+    { name: 'Practices', href: '#yoga-masterclasses' },
+    { name: 'Vlogs', href: '#lifestyle-vlogs' },
+    { name: 'Reels', href: '#asana-reels' },
     { name: 'Services', href: '#services' },
     { name: 'Stories', href: '#testimonials' },
     { name: 'About', href: '#about' },

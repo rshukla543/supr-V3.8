@@ -33,6 +33,8 @@ export interface InstagramReel {
   tags: string[];
   date: string;
   reelUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
 }
 
 export interface ServiceItem {

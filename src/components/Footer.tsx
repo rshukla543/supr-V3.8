@@ -7,9 +7,10 @@ import { SiteSettings } from '../types';
 interface FooterProps {
   logoUrl?: string;
   siteSettings?: SiteSettings;
+  onOpenPrivacy?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
+export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings, onOpenPrivacy }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -97,7 +98,7 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
           {/* Quick Nav Links (3 cols) */}
           <div className="md:col-span-3 flex flex-col items-center md:items-start">
             <h4 className="text-xs uppercase font-bold tracking-widest text-purple-300 mb-4">
-              Explore
+              Explore & Content
             </h4>
             <ul className="space-y-2.5 text-xs text-slate-400">
               <li>
@@ -106,8 +107,18 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
                 </a>
               </li>
               <li>
-                <a href="#content-vault" className="hover:text-white transition-colors">
-                  The Content Vault (YouTube + Reels)
+                <a href="#yoga-masterclasses" className="hover:text-white transition-colors">
+                  Yoga Masterclasses (YouTube)
+                </a>
+              </li>
+              <li>
+                <a href="#lifestyle-vlogs" className="hover:text-white transition-colors">
+                  Lifestyle & Philosophy Vlogs
+                </a>
+              </li>
+              <li>
+                <a href="#asana-reels" className="hover:text-white transition-colors">
+                  Bite-Sized Asana Reels
                 </a>
               </li>
               <li>
@@ -116,19 +127,23 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
                 </a>
               </li>
               <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Custom Plant Nutrition Plans
+                <a href="#partnerships" className="hover:text-white transition-colors">
+                  Conscious Brand Partnerships
                 </a>
               </li>
               <li>
-                <a href="#services" className="hover:text-white transition-colors">
-                  Brand Collaboration Inquiries
+                <a href="#testimonials" className="hover:text-white transition-colors">
+                  Practitioner Transformation Stories
                 </a>
               </li>
               <li>
-                <a href="#intention" className="hover:text-white transition-colors">
-                  Daily Somatic Intention
-                </a>
+                <button
+                  type="button"
+                  onClick={onOpenPrivacy}
+                  className="text-purple-300 hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  DPDP Privacy Notice (India 2023)
+                </button>
               </li>
             </ul>
           </div>
@@ -168,7 +183,7 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
 
         </motion.div>
 
-        {/* Bottom Bar: Copyright & Back to Top - Fully center-aligned on mobile */}
+        {/* Bottom Bar: Copyright, DPDP Privacy & Back to Top - Fully center-aligned on mobile */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -176,7 +191,16 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings }) => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-4 text-center sm:text-left"
         >
-          <p>© {new Date().getFullYear()} {name} • Vadodara, Gujarat. All rights reserved.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+            <p>© {new Date().getFullYear()} {name} • Vadodara, Gujarat. All rights reserved.</p>
+            <button
+              type="button"
+              onClick={onOpenPrivacy}
+              className="text-purple-300 hover:text-white underline text-[10px] cursor-pointer"
+            >
+              DPDP Act 2023 Privacy Rights
+            </button>
+          </div>
 
           <p className="text-center sm:text-left max-w-md text-[10px] text-slate-500">
             Educational wellness & somatic movement. Please consult a physician before undertaking vigorous physical practice.

@@ -577,6 +577,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       poseName: newReelPose || 'Somatic Fix',
       tags: ['YogaTips', 'Movement'],
       date: 'Recent',
+      reelUrl: newReelUrl || 'https://www.instagram.com/reel/C-xyz123/',
     };
 
     await upsertReel(reelToSave);

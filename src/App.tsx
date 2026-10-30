@@ -4,7 +4,9 @@ import { DynamicIrisBackground } from './components/DynamicIrisBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { GallerySection } from './components/GallerySection';
-import { ContentVaultSection } from './components/ContentVaultSection';
+import { YogaVideosSection } from './components/YogaVideosSection';
+import { LifestyleVlogsSection } from './components/LifestyleVlogsSection';
+import { AsanaReelsSection } from './components/AsanaReelsSection';
 import { ServicesSection } from './components/ServicesSection';
 import { MindfulnessWidget } from './components/MindfulnessWidget';
 import { AboutNewsletterSection } from './components/AboutNewsletterSection';
@@ -15,6 +17,7 @@ import { Footer } from './components/Footer';
 import { VideoModal } from './components/VideoModal';
 import { InstagramReelModal } from './components/InstagramReelModal';
 import { WaitlistModal } from './components/WaitlistModal';
+import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import {
   VideoContent,
@@ -59,6 +62,7 @@ export function App() {
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
   const [selectedReel, setSelectedReel] = useState<InstagramReel | null>(null);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('yoga-1on1');
 
@@ -138,7 +142,7 @@ export function App() {
 
       {/* Main Content Sections */}
       <main className="flex-grow relative z-10 pb-16 md:pb-0">
-        {/* 1. Hero Section with Word-by-Word Motion and Dynamic Cutout Frame */}
+        {/* 1. Hero Section with Grand Sacred Aura & Dynamic AI Atmosphere Engine */}
         <HeroSection
           siteSettings={siteSettings}
           onStartTraining={handleStartTraining}
@@ -146,44 +150,58 @@ export function App() {
           isLoading={isLoadingSettings}
         />
 
-        {/* 2. Brand Collaborations Infinite Looping Marquee */}
-        <BrandMarquee sponsors={sponsors} />
-
-        {/* 3. 3D Coverflow Drag Carousel Gallery Section (Right Above/Before Content Vault) */}
+        {/* 2. Visual Archive: 3D Coverflow Drag Carousel Gallery Section (Top Position) */}
         <GallerySection images={gallery} />
 
-        {/* 4. The Content Vault (YouTube Videos Grid + Instagram Reels Masonry) */}
-        <ContentVaultSection
+        {/* 3. Section A: Yoga Masterclasses & Sessions (YouTube - 6 initial + Load More) */}
+        <YogaVideosSection
           videos={videos}
-          reels={reels}
           onSelectVideo={(video) => setSelectedVideo(video)}
+        />
+
+        {/* 4. Section B: Mindful Lifestyle & Philosophy Vlogs (Deep-Dive Vlogs with Chapters) */}
+        <LifestyleVlogsSection
+          videos={videos}
+          onSelectVideo={(video) => setSelectedVideo(video)}
+        />
+
+        {/* 5. Section C: Bite-Sized Asana Reels & Drills (8 Vertical Reels with Direct Inline Play) */}
+        <AsanaReelsSection
+          reels={reels}
           onSelectReel={(reel) => setSelectedReel(reel)}
         />
 
-        {/* 5. Work With Me Services ('Future Monetization' Floating Cards) */}
+        {/* 6. Work With Me Services ('Future Monetization' Floating Cards) */}
         <ServicesSection
           services={services}
           onSelectService={handleSelectService}
         />
 
-        {/* 6. Transformations & Stories Testimonials Section + Submission Form */}
+        {/* 7. Brand Collaborations & Conscious Partnerships (Detailed Square Cards at Bottom) */}
+        <BrandMarquee sponsors={sponsors} />
+
+        {/* 8. Transformations & Stories Testimonials Section + Slide-Down Accordion Form */}
         <TestimonialsSection
           testimonials={testimonials}
           onTestimonialSubmitted={loadData}
         />
 
-        {/* 7. Interactive Somatic Breathwork Widget */}
+        {/* 9. Interactive Somatic Breathwork Widget */}
         <MindfulnessWidget />
 
-        {/* 8. About & Newsletter */}
+        {/* 10. About & Newsletter */}
         <AboutNewsletterSection />
 
-        {/* 9. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
+        {/* 11. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
         <DailyIntentionSection intention={dailyIntention || undefined} />
       </main>
 
-      {/* 10. Dark Minimalist Footer - Center Aligned on Mobile with Dynamic Logo */}
-      <Footer logoUrl={siteSettings.logoUrl} siteSettings={siteSettings} />
+      {/* 12. Dark Minimalist Footer - Center Aligned on Mobile with Dynamic Logo & DPDP Notice */}
+      <Footer
+        logoUrl={siteSettings.logoUrl}
+        siteSettings={siteSettings}
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+      />
 
       {/* Mobile Alternative Quick Action Dock */}
       <div className="md:hidden fixed bottom-3 inset-x-3 z-40">
@@ -197,19 +215,19 @@ export function App() {
           </a>
 
           <a
-            href="#content-vault"
+            href="#yoga-masterclasses"
             className="flex flex-col items-center justify-center py-1 px-2.5 text-[10px] text-slate-300 hover:text-white"
           >
             <Play className="w-4 h-4 mb-0.5 text-indigo-400" />
-            <span>Vault</span>
+            <span>Practice</span>
           </a>
 
           <a
-            href="#testimonials"
+            href="#asana-reels"
             className="flex flex-col items-center justify-center py-1 px-2.5 text-[10px] text-slate-300 hover:text-white"
           >
-            <Wind className="w-4 h-4 mb-0.5 text-purple-300" />
-            <span>Stories</span>
+            <Wind className="w-4 h-4 mb-0.5 text-pink-400" />
+            <span>Reels</span>
           </a>
 
           <button
@@ -263,6 +281,16 @@ export function App() {
           <WaitlistModal
             initialServiceId={selectedServiceId}
             onClose={() => setIsWaitlistOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* India DPDP Act 2023 Statutory Privacy Policy Modal */}
+      <AnimatePresence>
+        {isPrivacyOpen && (
+          <PrivacyPolicyModal
+            isOpen={isPrivacyOpen}
+            onClose={() => setIsPrivacyOpen(false)}
           />
         )}
       </AnimatePresence>
