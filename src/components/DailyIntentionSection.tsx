@@ -214,38 +214,57 @@ export const DailyIntentionSection: React.FC<DailyIntentionSectionProps> = ({ in
                 </div>
               </motion.div>
             ) : (
-              /* Revealed Intention Stage */
+              /* Revealed Intention Stage with Downward Flowing Staggered Physics */
               <motion.div
                 key="revealed-stage"
-                initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="flex flex-col items-center py-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center py-4 overflow-hidden"
               >
-                {/* Sanskrit Word & Theme Pill */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-xs font-medium mb-6 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                {/* Sanskrit Word & Theme Pill - Flows downward first */}
+                <motion.div
+                  initial={{ opacity: 0, y: -30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.05 }}
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-xs font-medium mb-6 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                >
                   <CheckCircle2 className="w-3.5 h-3.5 text-purple-300" />
                   <span>{activeQuote.sanskritWord} ({activeQuote.sanskritMeaning})</span>
                   <span>•</span>
                   <span className="text-white font-semibold">{activeQuote.theme}</span>
-                </div>
+                </motion.div>
 
-                {/* Big Quote */}
-                <blockquote className="font-serif text-xl sm:text-2xl md:text-3xl text-white font-normal leading-relaxed max-w-2xl mx-auto mb-6 italic drop-shadow-sm">
+                {/* Big Quote - Flows downward smoothly */}
+                <motion.blockquote
+                  initial={{ opacity: 0, y: -25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 100, damping: 15, delay: 0.18 }}
+                  className="font-serif text-xl sm:text-2xl md:text-3xl text-white font-normal leading-relaxed max-w-2xl mx-auto mb-6 italic drop-shadow-sm"
+                >
                   &ldquo;{activeQuote.quote}&rdquo;
-                </blockquote>
+                </motion.blockquote>
 
-                {/* Signature Tag */}
-                <div className="flex items-center justify-center gap-2 mb-8 text-xs sm:text-sm text-purple-300/90 font-mono">
+                {/* Signature Tag - Flows downward third */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 110, damping: 16, delay: 0.3 }}
+                  className="flex items-center justify-center gap-2 mb-8 text-xs sm:text-sm text-purple-300/90 font-mono"
+                >
                   <div className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-[10px] font-serif font-bold text-white">
                     ॐ
                   </div>
                   <span>Supriya • Conscious Movement Sanctuary</span>
-                </div>
+                </motion.div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center justify-center gap-4">
+                {/* Action Buttons - Gentle final appearance */}
+                <motion.div
+                  initial={{ opacity: 0, y: -15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 120, damping: 18, delay: 0.42 }}
+                  className="flex flex-wrap items-center justify-center gap-4"
+                >
                   <button
                     onClick={handleResetOrNext}
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase bg-white/[0.05] border border-purple-500/25 text-slate-200 hover:text-white hover:bg-purple-500/20 transition-all cursor-pointer shadow-xs active:scale-95"
@@ -260,7 +279,7 @@ export const DailyIntentionSection: React.FC<DailyIntentionSectionProps> = ({ in
                     <Heart className="w-3.5 h-3.5 text-[#0B0914]" />
                     <span>Carry Into Your Practice</span>
                   </a>
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

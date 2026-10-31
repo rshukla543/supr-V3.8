@@ -22,24 +22,33 @@ export const YogaVideosSection: React.FC<YogaVideosSectionProps> = ({
     return videos.filter((v) => v.category === 'Yoga (YouTube)');
   }, [videos]);
 
-  // Extract unique tags
-  const allTags = useMemo(() => {
-    const set = new Set<string>();
-    yogaVideos.forEach((v) => v.tags?.forEach((t) => set.add(t)));
-    return ['All', ...Array.from(set)];
-  }, [yogaVideos]);
+  // Explicitly defined filter tabs: Yoga, Pranayama, Biomechanics, Strength (plus All)
+  const filterTabs = ['All', 'Yoga', 'Pranayama', 'Biomechanics', 'Strength'];
+
+  // Helper to match tags safely including Pranayama/Pranayam variants
+  const checkTagMatch = (tags: string[] = [], targetTag: string): boolean => {
+    if (targetTag === 'All') return true;
+    const target = targetTag.toLowerCase();
+    return tags.some((t) => {
+      const lower = t.toLowerCase();
+      if (target === 'pranayama' || target === 'pranayam') {
+        return lower === 'pranayama' || lower === 'pranayam';
+      }
+      return lower === target;
+    });
+  };
 
   // Filter by tag
   const filteredVideos = useMemo(() => {
     if (selectedTag === 'All') return yogaVideos;
-    return yogaVideos.filter((v) => v.tags?.includes(selectedTag));
+    return yogaVideos.filter((v) => checkTagMatch(v.tags, selectedTag));
   }, [yogaVideos, selectedTag]);
 
   const displayedVideos = filteredVideos.slice(0, visibleCount);
   const hasMore = visibleCount < filteredVideos.length;
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 3);
+    setVisibleCount((prev) => prev + 6);
   };
 
   return (
@@ -81,31 +90,35 @@ export const YogaVideosSection: React.FC<YogaVideosSectionProps> = ({
           </div>
         </motion.div>
 
-        {/* Filter Chips */}
-        {allTags.length > 2 && (
-          <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-10">
-            {allTags.map((tag) => {
-              const isSelected = selectedTag === tag;
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    setSelectedTag(tag);
-                    setVisibleCount(6);
-                  }}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400/40'
-                      : 'bg-white/[0.04] text-slate-400 hover:text-white border border-purple-500/15 hover:bg-white/[0.08]'
-                  }`}
-                >
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {/* Specific Filter Tabs: Yoga, Pranayam, Biomechanics, Strength */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-10">
+          {filterTabs.map((tag) => {
+            const isSelected = selectedTag === tag;
+            const count =
+              tag === 'All'
+                ? yogaVideos.length
+                : yogaVideos.filter((v) => checkTagMatch(v.tags, tag)).length;
+
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => {
+                  setSelectedTag(tag);
+                  setVisibleCount(6);
+                }}
+                className={`relative px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                  isSelected
+                    ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-400/40'
+                    : 'bg-white/[0.04] text-slate-400 hover:text-white border border-purple-500/15 hover:bg-white/[0.08]'
+                }`}
+              >
+                <span>{tag}</span>
+                <span className="text-[10px] opacity-75 font-mono">({count})</span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* 6-Item Initial Grid with 3 Columns on Desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">

@@ -1,16 +1,29 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { VideoContent } from '../types';
-import { Play, Clock, Eye, Sparkles, Compass, ListFilter, ChevronDown, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { VideoContent, BlogEntry } from '../types';
+import {
+  Play,
+  Clock,
+  Eye,
+  Sparkles,
+  Compass,
+  ListFilter,
+  ChevronDown,
+  ArrowRight,
+  BookOpen,
+} from 'lucide-react';
 import { getYouTubeThumbnailUrl } from '../lib/videoParser';
 
 interface LifestyleVlogsSectionProps {
   videos: VideoContent[];
+  blogs?: BlogEntry[];
   onSelectVideo: (video: VideoContent) => void;
 }
 
 export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
   videos,
+  blogs = [],
   onSelectVideo,
 }) => {
   const [expandedVlogId, setExpandedVlogId] = useState<string | null>(null);
@@ -39,7 +52,7 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-purple-500/25 text-purple-300 text-xs font-semibold tracking-wider uppercase mb-3 backdrop-blur-md shadow-xs">
             <Compass className="w-3.5 h-3.5 text-purple-400" />
-            <span>Section B • Mindful Chronicles</span>
+            <span>Section B • Mindful Chronicles & Articles</span>
           </div>
 
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
@@ -47,16 +60,19 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
           </h2>
 
           <p className="mt-3 text-sm sm:text-base text-slate-300/80 max-w-xl mx-auto leading-relaxed">
-            Unfiltered Himalayan retreat diaries, Sattvic whole-food nutrition, and spatial sanctuary curation.
+            Unfiltered Himalayan retreat diaries, Sattvic whole-food nutrition, and spatial sanctuary curation. Click any story to dive into the full-page rich article and embedded video.
           </p>
         </motion.div>
 
-        {/* Cinematic Vlog Cards Grid */}
+        {/* Cinematic Vlog & Article Cards Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {vlogs.slice(0, 3).map((vlog, idx) => {
             const ytThumb = getYouTubeThumbnailUrl(vlog.videoUrl);
             const thumbSrc = vlog.customThumbnailUrl || ytThumb;
             const isExpanded = expandedVlogId === vlog.id;
+
+            // Map each vlog card to its matching blog article (blog-1, blog-2, blog-3)
+            const targetBlogId = blogs[idx]?.id || `blog-${idx + 1}`;
 
             return (
               <motion.div
@@ -66,12 +82,14 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 whileHover={{ y: -6 }}
-                onClick={() => onSelectVideo(vlog)}
-                className="group relative rounded-3xl overflow-hidden bg-[#140E28]/85 border border-purple-500/20 hover:border-purple-400/40 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)] transition-all cursor-pointer flex flex-col justify-between"
+                className="group relative rounded-3xl overflow-hidden bg-[#140E28]/85 border border-purple-500/20 hover:border-purple-400/40 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)] transition-all flex flex-col justify-between"
               >
                 <div>
-                  {/* Thumbnail Banner with 16:9 ratio */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-black/60">
+                  {/* Thumbnail Banner with 16:9 ratio - click to watch video */}
+                  <div
+                    onClick={() => onSelectVideo(vlog)}
+                    className="relative aspect-video w-full overflow-hidden bg-black/60 cursor-pointer"
+                  >
                     {thumbSrc ? (
                       <img
                         src={thumbSrc}
@@ -108,7 +126,7 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
 
                     {/* Badge */}
                     <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-purple-400/20 text-[10px] font-semibold text-purple-200">
-                      Lifestyle Vlog
+                      Lifestyle Vlog & Article
                     </div>
                   </div>
 
@@ -133,13 +151,23 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
                       {vlog.description}
                     </p>
 
+                    {/* Link to Dedicated Blog Route /blog/:id */}
+                    <Link
+                      to={`/blog/${targetBlogId}`}
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-purple-300 hover:text-white transition-colors group/link mb-4"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Read Full Article &amp; Guide</span>
+                      <ArrowRight className="w-3 h-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+
                     {/* Chapters Accordion Drawer */}
                     {vlog.chapters && vlog.chapters.length > 0 && (
                       <div className="mt-2 pt-3 border-t border-purple-500/15">
                         <button
                           type="button"
                           onClick={(e) => toggleChapters(vlog.id, e)}
-                          className="flex items-center justify-between w-full text-xs text-purple-300 hover:text-white font-medium py-1 transition-colors"
+                          className="flex items-center justify-between w-full text-xs text-purple-300 hover:text-white font-medium py-1 transition-colors cursor-pointer"
                         >
                           <span className="flex items-center gap-1.5">
                             <ListFilter className="w-3.5 h-3.5 text-purple-400" />

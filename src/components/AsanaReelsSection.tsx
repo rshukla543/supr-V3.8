@@ -84,9 +84,9 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
           </div>
         </motion.div>
 
-        {/* 8 Vertical Reels Grid (4 Columns on Desktop, 2 on Mobile) */}
+        {/* 4 Vertical Reels Grid (4 Columns on Desktop, 2 on Mobile) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {reels.slice(0, 8).map((reel, idx) => {
+          {reels.slice(0, 4).map((reel, idx) => {
             const isLiked = !!localLiked[reel.id];
             const baseCount = parseInt(
               reel.likesCount.replace(/[^0-9]/g, '') || '45000',

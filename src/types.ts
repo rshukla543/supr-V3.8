@@ -11,7 +11,7 @@ export interface VideoContent {
   tags: string[];
   thumbnailGradient: string;
   thumbnailAccent: string;
-  accentIcon: 'yoga' | 'vlog' | 'reel';
+  accentIcon?: 'yoga' | 'vlog' | 'reel' | 'pranayama' | 'biomechanics' | 'strength';
   videoUrl?: string;
   customThumbnailUrl?: string;
   chapters?: { time: string; title: string }[];
@@ -141,3 +141,22 @@ export interface HeroSectionData {
   secondaryCta: string;
   portraitUrl?: string;
 }
+
+export interface BlogEntry {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  heroVideoUrl?: string;
+  coverImageUrl?: string;
+  readTime: string;
+  category: string;
+  tags: string[];
+  author: string;
+  authorRole?: string;
+  authorImage?: string;
+  publishedAt: string;
+  createdAt?: string;
+}
+

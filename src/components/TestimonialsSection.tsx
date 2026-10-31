@@ -14,7 +14,10 @@ import {
   MessageSquareHeart,
   User,
   Send,
+  KeyRound,
+  Lock,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Testimonial } from '../types';
 import { submitTestimonial, uploadMediaFile } from '../lib/supabase';
 
@@ -46,6 +49,12 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
   const [submitError, setSubmitError] = useState('');
   const [hasDpdpConsent, setHasDpdpConsent] = useState(false);
 
+  // OTP Verification Step State (simulating Resend email OTP flow)
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const SIMULATED_OTP = '749201';
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Filter approved testimonials only for public display
@@ -66,6 +75,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         setSubmitError('Photo must be smaller than 5MB');
+        toast.error('Photo must be smaller than 5MB');
         return;
       }
       setImageFile(file);
@@ -77,19 +87,39 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Step 1: Validate & Trigger OTP Verification Modal
+  const handleInitiateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !message.trim()) {
       setSubmitError('Please fill in your name, email, and reflection story.');
+      toast.error('Please complete all required fields.');
       return;
     }
     if (!hasDpdpConsent) {
       setSubmitError('Please consent to processing under India DPDP Act, 2023.');
+      toast.error('Please provide DPDP Act consent to proceed.');
+      return;
+    }
+
+    setSubmitError('');
+    setOtpError('');
+    setOtpCode('');
+    setShowOtpModal(true);
+    toast.info(`Verification code sent to ${email} (Demo code: ${SIMULATED_OTP})`, {
+      duration: 6000,
+    });
+  };
+
+  // Step 2: Verify OTP & Finalize Submission
+  const handleVerifyOtpAndSubmit = async () => {
+    if (otpCode.trim() !== SIMULATED_OTP) {
+      setOtpError(`Invalid code. For client preview, use: ${SIMULATED_OTP}`);
+      toast.error(`Invalid OTP. Enter test code: ${SIMULATED_OTP}`);
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitError('');
+    setOtpError('');
 
     try {
       let finalImageUrl = '';
@@ -113,6 +143,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
       });
 
       setIsSubmitted(true);
+      setShowOtpModal(false);
       setName('');
       setEmail('');
       setRoleOrLocation('');
@@ -121,11 +152,15 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
       setImageFile(null);
       setImagePreview('');
 
+      toast.success('Your reflection was verified and submitted for moderation!');
+
       if (onTestimonialSubmitted) {
         onTestimonialSubmitted();
       }
     } catch (err: any) {
-      setSubmitError(err.message || 'Something went wrong. Please try again.');
+      const errMsg = err.message || 'Something went wrong. Please try again.';
+      setSubmitError(errMsg);
+      toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -408,7 +443,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
                     </button>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form onSubmit={handleInitiateSubmit} className="space-y-5">
                     {submitError && (
                       <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs">
                         {submitError}
@@ -566,13 +601,100 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
                         className="px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 flex items-center gap-2"
                       >
                         <Send className="w-3.5 h-3.5 text-[#0B0914]" />
-                        <span>{isSubmitting ? 'Submitting...' : 'Submit Reflection'}</span>
+                        <span>Continue to Verification</span>
                       </button>
                     </div>
                   </form>
                 )}
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Sleek OTP Email Verification Modal (Simulating Resend Auth Flow) */}
+        <AnimatePresence>
+          {showOtpModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.94, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.94, y: 15 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="relative w-full max-w-md rounded-3xl bg-[#140E28] border border-purple-500/30 p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.9)] text-center text-white"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg text-white">
+                  <KeyRound className="w-7 h-7" />
+                </div>
+
+                <h3 className="font-serif text-2xl font-semibold mb-1.5">
+                  Verify Your Reflection
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto mb-6">
+                  To prevent automated spam and verify your identity under DPDP guidelines, we sent a 6-digit confirmation code to <strong className="text-purple-300 font-mono">{email}</strong>.
+                </p>
+
+                {/* Simulated Notice Pill */}
+                <div className="mb-6 p-3 rounded-2xl bg-purple-950/60 border border-purple-500/30 text-xs text-purple-200 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="font-mono">Demo Code: <strong>{SIMULATED_OTP}</strong></span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpCode(SIMULATED_OTP);
+                      setOtpError('');
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-semibold text-white transition-colors cursor-pointer"
+                  >
+                    Auto-Fill
+                  </button>
+                </div>
+
+                {/* 6-Digit OTP Input */}
+                <div className="mb-5">
+                  <label className="block text-xs font-medium text-slate-400 mb-2">
+                    Enter 6-Digit Code
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={(e) => {
+                      setOtpCode(e.target.value.replace(/[^0-9]/g, ''));
+                      setOtpError('');
+                    }}
+                    placeholder="••••••"
+                    className="w-full text-center tracking-[0.5em] text-2xl font-mono py-3 rounded-2xl bg-[#0B0716] border border-purple-500/30 text-white focus:outline-hidden focus:border-purple-400 transition-colors"
+                  />
+                  {otpError && (
+                    <p className="mt-2 text-xs text-rose-400 font-medium">
+                      {otpError}
+                    </p>
+                  )}
+                </div>
+
+                {/* Modal Action Buttons */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowOtpModal(false)}
+                    className="w-1/3 py-3 rounded-2xl bg-white/[0.05] hover:bg-white/[0.1] border border-purple-500/20 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleVerifyOtpAndSubmit}
+                    disabled={isSubmitting || otpCode.length < 6}
+                    className="w-2/3 py-3 rounded-2xl btn-silver-glass text-xs font-bold uppercase tracking-wider cursor-pointer shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-[#0B0914]" />
+                    <span>{isSubmitting ? 'Verifying...' : 'Verify & Submit'}</span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
 

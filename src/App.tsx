@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { Toaster } from 'sonner';
 import { DynamicIrisBackground } from './components/DynamicIrisBackground';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -19,6 +21,7 @@ import { InstagramReelModal } from './components/InstagramReelModal';
 import { WaitlistModal } from './components/WaitlistModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { AdminDashboard } from './components/AdminDashboard';
+import { BlogDetailPage } from './components/BlogDetailPage';
 import {
   VideoContent,
   InstagramReel,
@@ -30,6 +33,7 @@ import {
   Testimonial,
   BrandSponsor,
   DailyIntention,
+  BlogEntry,
 } from './types';
 import {
   getVideos,
@@ -42,6 +46,7 @@ import {
   getAllTestimonials,
   getBrandSponsors,
   getDailyIntention,
+  getBlogs,
   INITIAL_SITE_SETTINGS,
 } from './lib/supabase';
 import { Play, Wind, ArrowUpRight, Image as ImageIcon } from 'lucide-react';
@@ -57,6 +62,7 @@ export function App() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [sponsors, setSponsors] = useState<BrandSponsor[]>([]);
   const [dailyIntention, setDailyIntention] = useState<DailyIntention | null>(null);
+  const [blogs, setBlogs] = useState<BlogEntry[]>([]);
   const [isLoadingSettings, setIsLoadingSettings] = useState<boolean>(true);
 
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
@@ -69,7 +75,7 @@ export function App() {
   // Load all data from Supabase / cached store
   const loadData = async () => {
     try {
-      const [v, r, s, g, w, n, settings, t, sp, di] = await Promise.all([
+      const [v, r, s, g, w, n, settings, t, sp, di, b] = await Promise.all([
         getVideos(),
         getReels(),
         getServices(),
@@ -80,6 +86,7 @@ export function App() {
         getAllTestimonials(),
         getBrandSponsors(),
         getDailyIntention(),
+        getBlogs(),
       ]);
       setVideos(v);
       setReels(r);
@@ -91,12 +98,14 @@ export function App() {
       setTestimonials(t);
       setSponsors(sp);
       setDailyIntention(di);
+      setBlogs(b);
     } catch (err) {
       console.warn('Error loading database entities:', err);
     } finally {
       setIsLoadingSettings(false);
     }
   };
+
 
   useEffect(() => {
     loadData();
@@ -130,6 +139,9 @@ export function App() {
   return (
     <div className="relative min-h-screen bg-[#0B0914] text-[#F8FAFC] flex flex-col font-sans selection:bg-purple-600/30 selection:text-purple-200">
       
+      {/* Global Toast Notification Provider */}
+      <Toaster position="top-right" richColors theme="dark" />
+
       {/* Dark Ambient Canvas Background with Flying Stars & Subtle Midnight Lotus Spheres */}
       <DynamicIrisBackground />
 
@@ -140,61 +152,70 @@ export function App() {
         logoUrl={siteSettings.logoUrl}
       />
 
-      {/* Main Content Sections */}
-      <main className="flex-grow relative z-10 pb-16 md:pb-0">
-        {/* 1. Hero Section with Grand Sacred Aura & Dynamic AI Atmosphere Engine */}
-        <HeroSection
-          siteSettings={siteSettings}
-          onStartTraining={handleStartTraining}
-          onWatchVideo={handleWatchHeroVideo}
-          isLoading={isLoadingSettings}
+      {/* Dynamic Routing: Main Sanctuary Page vs Dedicated Full-Article Blog Route (/blog/:id) */}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <main className="flex-grow relative z-10 pb-16 md:pb-0">
+              {/* 1. Hero Section with Grand Sacred Aura & Dynamic AI Atmosphere Engine */}
+              <HeroSection
+                siteSettings={siteSettings}
+                onStartTraining={handleStartTraining}
+                onWatchVideo={handleWatchHeroVideo}
+                isLoading={isLoadingSettings}
+              />
+
+              {/* 2. Visual Archive: 3D Coverflow Drag Carousel Gallery Section (Top Position) */}
+              <GallerySection images={gallery} />
+
+              {/* 3. Section A: Yoga Masterclasses & Sessions (YouTube - 6 initial + Load More) */}
+              <YogaVideosSection
+                videos={videos}
+                onSelectVideo={(video) => setSelectedVideo(video)}
+              />
+
+              {/* 4. Section B: Mindful Lifestyle & Philosophy Vlogs (Deep-Dive Vlogs with Chapters) */}
+              <LifestyleVlogsSection
+                videos={videos}
+                blogs={blogs}
+                onSelectVideo={(video) => setSelectedVideo(video)}
+              />
+
+              {/* 5. Section C: Bite-Sized Asana Reels & Drills (8 Vertical Reels with Direct Inline Play) */}
+              <AsanaReelsSection
+                reels={reels}
+                onSelectReel={(reel) => setSelectedReel(reel)}
+              />
+
+              {/* 6. Work With Me Services ('Future Monetization' Floating Cards) */}
+              <ServicesSection
+                services={services}
+                onSelectService={handleSelectService}
+              />
+
+              {/* 7. Brand Collaborations & Conscious Partnerships (Detailed Square Cards at Bottom) */}
+              <BrandMarquee sponsors={sponsors} />
+
+              {/* 8. Transformations & Stories Testimonials Section + Slide-Down Accordion Form */}
+              <TestimonialsSection
+                testimonials={testimonials}
+                onTestimonialSubmitted={loadData}
+              />
+
+              {/* 9. Interactive Somatic Breathwork Widget */}
+              <MindfulnessWidget />
+
+              {/* 10. About & Newsletter */}
+              <AboutNewsletterSection />
+
+              {/* 11. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
+              <DailyIntentionSection intention={dailyIntention || undefined} />
+            </main>
+          }
         />
-
-        {/* 2. Visual Archive: 3D Coverflow Drag Carousel Gallery Section (Top Position) */}
-        <GallerySection images={gallery} />
-
-        {/* 3. Section A: Yoga Masterclasses & Sessions (YouTube - 6 initial + Load More) */}
-        <YogaVideosSection
-          videos={videos}
-          onSelectVideo={(video) => setSelectedVideo(video)}
-        />
-
-        {/* 4. Section B: Mindful Lifestyle & Philosophy Vlogs (Deep-Dive Vlogs with Chapters) */}
-        <LifestyleVlogsSection
-          videos={videos}
-          onSelectVideo={(video) => setSelectedVideo(video)}
-        />
-
-        {/* 5. Section C: Bite-Sized Asana Reels & Drills (8 Vertical Reels with Direct Inline Play) */}
-        <AsanaReelsSection
-          reels={reels}
-          onSelectReel={(reel) => setSelectedReel(reel)}
-        />
-
-        {/* 6. Work With Me Services ('Future Monetization' Floating Cards) */}
-        <ServicesSection
-          services={services}
-          onSelectService={handleSelectService}
-        />
-
-        {/* 7. Brand Collaborations & Conscious Partnerships (Detailed Square Cards at Bottom) */}
-        <BrandMarquee sponsors={sponsors} />
-
-        {/* 8. Transformations & Stories Testimonials Section + Slide-Down Accordion Form */}
-        <TestimonialsSection
-          testimonials={testimonials}
-          onTestimonialSubmitted={loadData}
-        />
-
-        {/* 9. Interactive Somatic Breathwork Widget */}
-        <MindfulnessWidget />
-
-        {/* 10. About & Newsletter */}
-        <AboutNewsletterSection />
-
-        {/* 11. Mindful Moment: Daily Intention Liquid-Fill Card (Above Footer) */}
-        <DailyIntentionSection intention={dailyIntention || undefined} />
-      </main>
+        <Route path="/blog/:id" element={<BlogDetailPage />} />
+      </Routes>
 
       {/* 12. Dark Minimalist Footer - Center Aligned on Mobile with Dynamic Logo & DPDP Notice */}
       <Footer
@@ -241,21 +262,23 @@ export function App() {
       </div>
 
       {/* Admin Dashboard CMS Modal */}
-      <AdminDashboard
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        videos={videos}
-        reels={reels}
-        services={services}
-        gallery={gallery}
-        waitlist={waitlist}
-        subscribers={subscribers}
-        siteSettings={siteSettings}
-        testimonials={testimonials}
-        sponsors={sponsors}
-        dailyIntention={dailyIntention || undefined}
-        onRefreshData={loadData}
-      />
+      {isAdminOpen && (
+        <AdminDashboard
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+          videos={videos}
+          reels={reels}
+          services={services}
+          gallery={gallery}
+          waitlist={waitlist}
+          subscribers={subscribers}
+          siteSettings={siteSettings}
+          testimonials={testimonials}
+          sponsors={sponsors}
+          dailyIntention={dailyIntention || undefined}
+          onRefreshData={loadData}
+        />
+      )}
 
       {/* Interactive Modals with AnimatePresence */}
       <AnimatePresence>

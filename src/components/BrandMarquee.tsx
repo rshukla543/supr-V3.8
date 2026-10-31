@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Award, ExternalLink, ShieldCheck, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Award, ExternalLink, ShieldCheck, ArrowUpRight, Sparkles, MoveHorizontal } from 'lucide-react';
 import { BrandSponsor } from '../types';
 
 interface BrandMarqueeProps {
@@ -59,16 +59,17 @@ const DEFAULT_SPONSORS: BrandSponsor[] = [
 ];
 
 export const BrandMarquee: React.FC<BrandMarqueeProps> = ({ sponsors }) => {
+  const [isDragging, setIsDragging] = useState(false);
   const currentList = sponsors && sponsors.length > 0 ? sponsors : DEFAULT_SPONSORS;
-  // Double list for seamless infinite loop
-  const marqueeItems = [...currentList, ...currentList];
+  // Multiple repetitions for smooth drag and infinite visual length
+  const marqueeItems = [...currentList, ...currentList, ...currentList];
 
   return (
-    <section id="partnerships" className="py-20 sm:py-28 relative z-10 overflow-hidden border-t border-purple-500/15 bg-[#0B0914]/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 text-center">
+    <section id="partnerships" className="py-20 sm:py-28 relative z-10 overflow-hidden border-t border-purple-500/15 bg-[#0B0914]/80 backdrop-blur-xl select-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.03] border border-purple-500/20 text-purple-300 text-xs font-semibold tracking-wider uppercase backdrop-blur-md mb-3">
           <Award className="w-3.5 h-3.5 text-purple-400" />
-          <span>Brand Partnerships & Conscious Alliances</span>
+          <span>Brand Partnerships &amp; Conscious Alliances</span>
         </div>
         <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-white tracking-tight">
           Curated Collaborations
@@ -76,23 +77,33 @@ export const BrandMarquee: React.FC<BrandMarqueeProps> = ({ sponsors }) => {
         <p className="mt-3 text-xs sm:text-sm text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
           I partner exclusively with mindful leaders in non-toxic living, organic Ayurvedic nourishment, and sustainable movement technology.
         </p>
+
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-mono text-purple-300/70">
+          <MoveHorizontal className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+          <span>Interactive Draggable Track • Drag freely left or right</span>
+        </div>
       </div>
 
-      {/* Marquee Track Container with Generous Square Cards */}
-      <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      {/* Marquee Track Container with Draggable Touch/Mouse Physics */}
+      <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] cursor-grab active:cursor-grabbing">
         <motion.div
-          className="flex gap-6 w-max py-4 select-none"
-          animate={{ x: ['0%', '-50%'] }}
+          className="flex gap-6 w-max py-4 px-6"
+          drag="x"
+          dragConstraints={{ left: -1400, right: 100 }}
+          dragElastic={0.1}
+          onDragStart={() => setIsDragging(true)}
+          onDragEnd={() => setTimeout(() => setIsDragging(false), 150)}
+          animate={!isDragging ? { x: ['0%', '-33.333%'] } : undefined}
           transition={{
             repeat: Infinity,
             repeatType: 'loop',
-            duration: 35,
+            duration: 40,
             ease: 'linear',
           }}
         >
           {marqueeItems.map((brand, idx) => {
             const CardInner = (
-              <div className="w-64 sm:w-72 aspect-square p-6 rounded-3xl bg-[#130E26]/90 hover:bg-[#181130] border border-purple-500/20 hover:border-purple-400/50 backdrop-blur-2xl transition-all duration-300 group shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.25)] flex flex-col justify-between text-left relative overflow-hidden">
+              <div className="w-64 sm:w-72 aspect-square p-6 rounded-3xl bg-[#130E26]/90 hover:bg-[#181130] border border-purple-500/20 hover:border-purple-400/50 backdrop-blur-2xl transition-all duration-300 group shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.25)] flex flex-col justify-between text-left relative overflow-hidden select-none pointer-events-auto">
                 {/* Subtle ambient card corner glow */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all pointer-events-none" />
 
@@ -114,7 +125,8 @@ export const BrandMarquee: React.FC<BrandMarqueeProps> = ({ sponsors }) => {
                       <img
                         src={brand.logoUrl}
                         alt={brand.name}
-                        className="w-full h-full object-cover rounded-xl"
+                        draggable={false}
+                        className="w-full h-full object-cover rounded-xl pointer-events-none select-none"
                       />
                     ) : (
                       <div className="w-full h-full rounded-xl bg-purple-900/40 flex items-center justify-center font-serif text-xl font-bold text-white">
@@ -152,6 +164,9 @@ export const BrandMarquee: React.FC<BrandMarqueeProps> = ({ sponsors }) => {
                   href={brand.affiliateUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (isDragging) e.preventDefault();
+                  }}
                   className="cursor-pointer block no-underline focus:outline-hidden"
                   title={`Visit ${brand.name}`}
                 >

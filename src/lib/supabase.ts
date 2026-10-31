@@ -11,6 +11,7 @@ import {
   BrandSponsor,
   DailyIntention,
   HeroSectionData,
+  BlogEntry,
 } from '../types';
 import { VIDEO_DATA, INSTAGRAM_REELS, SERVICES_DATA } from '../data/mockData';
 import { sendConfirmationEmail } from './emailService';
@@ -326,21 +327,21 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   heroBadge: '500-HR RYT • Somatic Yoga & Lifestyle Alchemist',
   headline: 'Find Your Balance. Elevate Your Lifestyle.',
   subtext:
-    'Rooted in Vadodara, Gujarat. Through somatic alignment, classical Vinyasa, and conscious rituals, I guide modern seekers into grounded mental stillness and effortless physical grace.',
+    'Escape digital fatigue and reclaim somatic vitality. Through the alchemy of dynamic Vinyasa, deep fascial unwinding, and conscious daily rituals, I guide high-achievers into grounded mental stillness and effortless strength.',
   primaryCta: 'Start Training',
   secondaryCta: 'Watch Latest Video',
   bioQuote: 'Movement is not about performance. It is an act of returning home.',
   bioStory:
     'For over eight years, I navigated the unrelenting cadence of corporate tech until severe nervous system burnout compelled me to step off the treadmill and re-learn what it means to actually inhabit the human body. My search brought me to Rishikesh and Bali for 500+ hours of advanced classical Vinyasa and somatic breathwork. Today, based out of Vadodara, Gujarat, I lead immersive retreats, bespoke 1-on-1 mentorship, and digital holistic masterclasses.',
   logoUrl: '',
-  heroPortraitUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=85',
+  heroPortraitUrl: 'https://eialqaovgaphyhpmeunu.supabase.co/storage/v1/object/public/site-assets/hero/hero_1793346300050_f74n68.jpg',
   name: 'Supriya Bhavsar',
   location: 'Vadodara, Gujarat',
   managerName: 'Shlok Brahmbhatt',
   managerHandle: '@shlok.brahmbhatt',
   managementEmail: 'management@supriyabhavsar.com',
   instagramHandle: '@supriya_9508',
-  youtubeChannel: '@supriyabhavsar_yoga',
+  youtubeChannel: '@supriyabhavsar7343',
 };
 
 export const INITIAL_TESTIMONIALS: Testimonial[] = [
@@ -528,7 +529,7 @@ export async function getVideos(): Promise<VideoContent[]> {
       return local ? JSON.parse(local) : VIDEO_DATA;
     }
 
-    return data.map((item) => ({
+    const fetchedVideos: VideoContent[] = data.map((item) => ({
       id: item.id,
       title: item.title,
       category: item.category,
@@ -536,7 +537,7 @@ export async function getVideos(): Promise<VideoContent[]> {
       views: item.views,
       date: item.date,
       description: item.description,
-      videoUrl: item.video_url || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      videoUrl: item.video_url || 'https://www.youtube.com/watch?v=sTANio_2E0Q',
       customThumbnailUrl: item.custom_thumbnail_url || undefined,
       tags: item.tags || [],
       thumbnailGradient: item.thumbnail_gradient,
@@ -544,6 +545,16 @@ export async function getVideos(): Promise<VideoContent[]> {
       accentIcon: item.category === 'Lifestyle Vlogs' ? 'vlog' : item.category === 'Reels (Instagram)' ? 'reel' : 'yoga',
       chapters: item.chapters || [],
     }));
+
+    // Ensure all 12 masterclasses (3 for Yoga, 3 for Pranayam, 3 for Biomechanics, 3 for Strength) and 4 Lifestyle Vlogs are present
+    const existingIds = new Set(fetchedVideos.map((v) => v.id));
+    const merged = [...fetchedVideos];
+    for (const preset of VIDEO_DATA) {
+      if (!existingIds.has(preset.id)) {
+        merged.push(preset);
+      }
+    }
+    return merged;
   } catch {
     const local = localStorage.getItem('supriya_videos');
     return local ? JSON.parse(local) : VIDEO_DATA;
@@ -589,34 +600,51 @@ export async function deleteVideo(id: string): Promise<void> {
   }
 }
 
-// REELS
+// REELS (Strictly 4 Curated Entries with Working Playable Streams)
 export async function getReels(): Promise<InstagramReel[]> {
   try {
     const { data, error } = await supabase.from('instagram_reels').select('*');
     if (error || !data || data.length === 0) {
       const local = localStorage.getItem('supriya_reels');
-      return local ? JSON.parse(local) : INSTAGRAM_REELS;
+      return local ? JSON.parse(local).slice(0, 4) : INSTAGRAM_REELS.slice(0, 4);
     }
-    return data.map((item) => ({
-      id: item.id,
-      caption: item.caption,
-      creatorHandle: item.creator_handle,
-      audioTrack: item.audio_track,
-      likesCount: item.likes_count,
-      commentsCount: item.comments_count,
-      sharesCount: item.shares_count,
-      viewsCount: item.views_count,
-      duration: item.duration,
-      gradient: item.gradient,
-      coverAccent: item.cover_accent,
-      poseName: item.pose_name,
-      tags: item.tags || [],
-      date: item.date,
-      reelUrl: item.reel_url || item.reelUrl || undefined,
-    }));
+
+    // Map each item and guarantee working videoUrl, thumbnailUrl, and valid Instagram link
+    const mapped: InstagramReel[] = data.map((item, idx) => {
+      const fallback = INSTAGRAM_REELS[idx % INSTAGRAM_REELS.length];
+      const validReelUrl =
+        item.reel_url && !item.reel_url.includes('sample') && !item.reel_url.includes('xyz')
+          ? item.reel_url
+          : fallback.reelUrl;
+
+      return {
+        id: item.id || fallback.id,
+        caption: item.caption || fallback.caption,
+        creatorHandle:
+          item.creator_handle && item.creator_handle !== 'supriyawellness'
+            ? item.creator_handle
+            : 'supriya_9508',
+        audioTrack: item.audio_track || fallback.audioTrack,
+        likesCount: item.likes_count || fallback.likesCount,
+        commentsCount: item.comments_count || fallback.commentsCount,
+        sharesCount: item.shares_count || fallback.sharesCount,
+        viewsCount: item.views_count || fallback.viewsCount,
+        duration: item.duration || fallback.duration,
+        gradient: item.gradient || fallback.gradient,
+        coverAccent: item.cover_accent || fallback.coverAccent,
+        poseName: item.pose_name || fallback.poseName,
+        tags: item.tags && item.tags.length > 0 ? item.tags : fallback.tags,
+        date: item.date || fallback.date,
+        reelUrl: validReelUrl,
+        videoUrl: item.video_url || item.videoUrl || fallback.videoUrl,
+        thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || fallback.thumbnailUrl,
+      };
+    });
+
+    return mapped.slice(0, 4);
   } catch {
     const local = localStorage.getItem('supriya_reels');
-    return local ? JSON.parse(local) : INSTAGRAM_REELS;
+    return local ? JSON.parse(local).slice(0, 4) : INSTAGRAM_REELS.slice(0, 4);
   }
 }
 
@@ -624,7 +652,7 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
   const current = await getReels();
   const exists = current.some((r) => r.id === reel.id);
   const updated = exists ? current.map((r) => (r.id === reel.id ? reel : r)) : [reel, ...current];
-  localStorage.setItem('supriya_reels', JSON.stringify(updated));
+  localStorage.setItem('supriya_reels', JSON.stringify(updated.slice(0, 4)));
 
   try {
     await supabase.from('instagram_reels').upsert({
@@ -643,9 +671,11 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
       tags: reel.tags,
       date: reel.date,
       reel_url: reel.reelUrl || null,
+      video_url: reel.videoUrl || null,
+      thumbnail_url: reel.thumbnailUrl || null,
     });
   } catch (err) {
-    console.warn('Supabase sync notice:', err);
+    console.warn('Supabase sync notice on upsertReel:', err);
   }
 }
 
@@ -726,25 +756,38 @@ export async function deleteService(id: string): Promise<void> {
 // GALLERY
 export async function getGallery(): Promise<GalleryImage[]> {
   try {
-    const { data, error } = await supabase
+    const { data: carouselData } = await supabase
+      .from('gallery_carousel')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    const { data: imagesData } = await supabase
       .from('gallery_images')
       .select('*')
       .order('display_order', { ascending: true });
 
-    if (error || !data || data.length === 0) {
+    const combined = [...(imagesData || []), ...(carouselData || [])];
+    if (combined.length === 0) {
       const local = localStorage.getItem('supriya_gallery');
       return local ? JSON.parse(local) : INITIAL_GALLERY_IMAGES;
     }
-    return data.map((item) => ({
-      id: item.id,
-      title: item.title,
-      folder: item.folder,
-      caption: item.caption,
-      aspectRatio: item.aspect_ratio || '4/5',
-      gradientHint: item.gradient_hint || 'from-purple-950 via-slate-900 to-black',
-      displayOrder: item.display_order,
-      imageUrl: item.image_url || item.url,
-    }));
+
+    const uniqueMap = new Map<string, GalleryImage>();
+    for (const item of combined) {
+      if (!uniqueMap.has(item.id)) {
+        uniqueMap.set(item.id, {
+          id: item.id,
+          title: item.title,
+          folder: item.folder,
+          caption: item.caption,
+          aspectRatio: item.aspect_ratio || '4/5',
+          gradientHint: item.gradient_hint || 'from-purple-950 via-slate-900 to-black',
+          displayOrder: item.display_order ?? 0,
+          imageUrl: item.image_url || item.url,
+        });
+      }
+    }
+    return Array.from(uniqueMap.values());
   } catch {
     const local = localStorage.getItem('supriya_gallery');
     return local ? JSON.parse(local) : INITIAL_GALLERY_IMAGES;
@@ -757,19 +800,26 @@ export async function upsertGalleryImage(image: GalleryImage): Promise<void> {
   const updated = exists ? current.map((g) => (g.id === image.id ? image : g)) : [...current, image];
   localStorage.setItem('supriya_gallery', JSON.stringify(updated));
 
+  const payload = {
+    id: image.id,
+    title: image.title,
+    folder: image.folder,
+    caption: image.caption,
+    aspect_ratio: image.aspectRatio,
+    gradient_hint: image.gradientHint,
+    display_order: image.displayOrder || current.length + 1,
+    image_url: image.imageUrl,
+  };
+
   try {
-    await supabase.from('gallery_images').upsert({
-      id: image.id,
-      title: image.title,
-      folder: image.folder,
-      caption: image.caption,
-      aspect_ratio: image.aspectRatio,
-      gradient_hint: image.gradientHint,
-      display_order: image.displayOrder || current.length + 1,
-      image_url: image.imageUrl,
-    });
+    await supabase.from('gallery_images').upsert(payload);
   } catch (err) {
-    console.warn('Supabase sync notice:', err);
+    console.warn('Supabase sync notice gallery_images:', err);
+  }
+  try {
+    await supabase.from('gallery_carousel').upsert(payload);
+  } catch (err) {
+    console.warn('Supabase sync notice gallery_carousel:', err);
   }
 }
 
@@ -781,7 +831,12 @@ export async function deleteGalleryImage(id: string): Promise<void> {
   try {
     await supabase.from('gallery_images').delete().eq('id', id);
   } catch (err) {
-    console.warn('Supabase sync notice:', err);
+    console.warn('Supabase sync notice gallery_images delete:', err);
+  }
+  try {
+    await supabase.from('gallery_carousel').delete().eq('id', id);
+  } catch (err) {
+    console.warn('Supabase sync notice gallery_carousel delete:', err);
   }
 }
 
@@ -1374,4 +1429,217 @@ export async function deleteTestimonial(id: string): Promise<void> {
     console.warn('Supabase sync notice on delete testimonial:', err);
   }
 }
+
+// ----------------------------------------------------------------------
+// BLOGS & VLOG ARTICLES (Dedicated /blog/:id full-page layouts)
+// ----------------------------------------------------------------------
+export const INITIAL_BLOGS: BlogEntry[] = [
+  {
+    id: 'blog-1',
+    title: 'The Biomechanics of Surrender: Why Your Nervous System Needs Yin Yoga in 2026',
+    slug: 'biomechanics-of-surrender-yin-yoga',
+    excerpt: 'Modern hustle culture glorifies sympathetic fight-or-flight overdrive. Here is how slow, targeted connective tissue compression recalibrates the vagus nerve and restores cellular vitality.',
+    content: `## The Modern Crisis of Sympathetic Overdrive
+
+In our digital, hyper-connected world, our nervous systems are chronically bombarded by blue-light notifications, deadlines, and subconscious hypervigilance. Most practitioners arrive on their yoga mats carrying tight iliopsoas muscles, clenched jaws, and elevated baseline cortisol.
+
+When you practice vigorous Yang vinyasa exclusively, you train strength and cardiovascular stamina, but you often reinforce the same sympathetic state of striving and output.
+
+> "Surrender is not passive defeat; it is the deliberate neurological decision to stop contracting against reality."
+
+## Fascial Plasticity & Deep Tissue Compression
+
+Unlike dynamic movement which warms and contracts the red muscle fibers, Yin Yoga targets the dense white connective tissues—the fascial sheaths, tendons, and joint capsules.
+
+### 1. The 3-Minute Rule for Collagen Fiber Relaxation
+Collagen fibers in the deep myofascial matrix require at least 120 to 180 seconds of steady, gentle tensile pressure before phase transition occurs. Holding positions such as Sphinx, Dragonfly, or Sleeping Swan allows the extracellular matrix to rehydrate, releasing deep-seated cellular memory.
+
+### 2. Vagal Tone Stimulation
+Deep, diaphragmatic exhalations during long holds stimulate the ventral vagus nerve branch, signaling immediate parasympathetic safety to the heart, slowing pulse rate and down-regulating systemic inflammation.
+
+## Practical Integration in Your Home Sanctuary
+
+1. **Commit to Props:** Never force your joints into empty space. Use bolster support under the sternum or knees.
+2. **Find Your 70% Edge:** Sensation should be dull, therapeutic, and sweet—never sharp, pinching, or burning.
+3. **Rest in Savasana:** Give your fascia 5 full minutes of unmoving silence after practice to absorb the energetic recalibration.`,
+    heroVideoUrl: 'https://www.youtube.com/watch?v=b1H3xO3x_Js',
+    coverImageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80',
+    readTime: '6 min read',
+    category: 'Somatic Science',
+    tags: ['Yin Yoga', 'Vagus Nerve', 'Somatic Health', 'Fascia'],
+    author: 'Supriya Bhavsar',
+    authorRole: '500-HR Somatic Practitioner • Vadodara',
+    authorImage: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=200&q=80',
+    publishedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+  },
+  {
+    id: 'blog-2',
+    title: 'Brahma Muhurta in Vadodara: The Ayurvedic Science of Rising at 4:30 AM',
+    slug: 'brahma-muhurta-ayurvedic-morning-routine',
+    excerpt: 'The ninety-six minutes before dawn contain a unique concentration of atmospheric prana. How waking before sunrise in Gujarat transformed my mental drishti and intuitive clarity.',
+    content: `## The Sacred Hours Before Dawn
+
+In classical Ayurvedic medicine, the 24-hour circadian cycle is divided into distinct doshic phases. The period from 2:00 AM to 6:00 AM is governed by Vata dosha—the element of ether and air, characterized by lightness, subtlety, and expansiveness.
+
+The exact window known as **Brahma Muhurta** begins approximately 1 hour and 36 minutes before local sunrise. In Vadodara, when the city is still quiet and the cool breeze blows across the Vishwamitri, this stillness offers an irreplaceable spiritual portal.
+
+> "The stillness of the dawn does not simply exist around you; it permeates the cavities of your heart when you sit in silence."
+
+## The 4 Pillars of a Sattvic Morning Routine (Dinacharya)
+
+### 1. Ushapan (Sacred Hydration)
+Drink 500ml of warm water stored overnight in a pure copper vessel (Tamra Jal). This naturally balances all three doshas and gently awakens the peristaltic digestive fire.
+
+### 2. Jivha Nirlekhana (Tongue Scraping)
+Using a pure copper or silver tongue scraper, gently draw from back to front 7 times to eliminate toxins (Ama) accumulated during sleep.
+
+### 3. Nadi Shodhana Pranayama
+Sit with your spine stacked and practice 12 rounds of alternate nostril breathing. This harmonizes Ida (cooling parasympathetic) and Pingala (heating solar) nadis.
+
+### 4. Ten Minutes of Drishti Stillness
+Before checking any digital screen, simply watch the natural shifting of morning light across your sanctuary altar.`,
+    heroVideoUrl: 'https://www.youtube.com/watch?v=glT0sH_p9z8',
+    coverImageUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1200&q=80',
+    readTime: '8 min read',
+    category: 'Ayurvedic Living',
+    tags: ['Brahma Muhurta', 'Ayurveda', 'Pranayama', 'Circadian Health'],
+    author: 'Supriya Bhavsar',
+    authorRole: '500-HR Somatic Practitioner • Vadodara',
+    authorImage: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=200&q=80',
+    publishedAt: new Date(Date.now() - 10 * 86400000).toISOString(),
+  },
+  {
+    id: 'blog-3',
+    title: 'Sanctuary Architecture: How to Curate a High-Frequency Home Movement Space',
+    slug: 'sanctuary-architecture-mindful-home-space',
+    excerpt: 'Your physical environment directly mirrors and shapes your nervous system tone. A guide to lighting, non-toxic textures, sacred geometry, and minimalist studio curation.',
+    content: `## Spatial Resonance & Psychological Safety
+
+Your nervous system constantly conducts environmental neuroception—an unconscious scanning of your physical surroundings for threats versus safety. A cluttered, fluorescently lit room keeps the brain in low-grade cognitive load.
+
+When you step into a dedicated movement space that smells of pure sandalwood and feels grounding beneath your feet, your brain instantly recognizes the cue to enter somatic presence.
+
+### 1. Eliminating Overhead Blue Light
+After 6:00 PM, never switch on bright overhead LED lights. Instead, use:
+- Salt crystal lamps emitting gentle amber wavelengths (590-620nm)
+- Pure beeswax candles that emit negative ions as they burn
+- Floor-level diffused paper lanterns
+
+This signals to your pineal gland that darkness has fallen, naturally ramping up endogenous melatonin production for deep restorative sleep.
+
+### 2. Natural Fibers Over Synthetics
+Your skin is your largest sensory organ. Replace polyester and acrylic rugs with:
+- Unbleached organic cotton mats
+- Heavy Belgian linen cushions
+- Sustainable cork blocks and meditation zafus
+
+### 3. Indoor Botanical Air Filters
+Plants bring living prana and oxygen into your sanctuary. In our Vadodara studio, we cultivate:
+- **Snake Plant (Sansevieria):** Releases oxygen overnight.
+- **Holy Tulsi:** Sacred Ayurvedic medicinal herb that clears stagnant subtle energy.
+- **Peace Lily:** Purifies airborne toxins while maintaining natural humidity.
+
+Your home should be the place where you exhale all performance and return to pure being.`,
+    heroVideoUrl: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
+    coverImageUrl: 'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=1200&q=80',
+    readTime: '5 min read',
+    category: 'Sanctuary Living',
+    tags: ['Interior Sanctuary', 'Circadian Lighting', 'Ayurveda'],
+    author: 'Supriya Bhavsar',
+    authorRole: '500-HR Somatic Practitioner • Vadodara',
+    authorImage: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=200&q=80',
+    publishedAt: new Date(Date.now() - 20 * 86400000).toISOString(),
+  },
+];
+
+export async function getBlogs(): Promise<BlogEntry[]> {
+  try {
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('*')
+      .order('published_at', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      const local = localStorage.getItem('supriya_blogs');
+      if (local) {
+        return JSON.parse(local);
+      }
+      localStorage.setItem('supriya_blogs', JSON.stringify(INITIAL_BLOGS));
+      return INITIAL_BLOGS;
+    }
+
+    return data.map((b) => ({
+      id: b.id,
+      title: b.title,
+      slug: b.slug,
+      excerpt: b.excerpt,
+      content: b.content,
+      heroVideoUrl: b.hero_video_url || undefined,
+      coverImageUrl: b.cover_image_url || undefined,
+      readTime: b.read_time || '5 min read',
+      category: b.category || 'Mindful Living',
+      tags: b.tags || [],
+      author: b.author || 'Supriya Bhavsar',
+      authorRole: b.author_role || '500-HR Somatic Practitioner • Vadodara',
+      authorImage: b.author_image || undefined,
+      publishedAt: b.published_at || b.created_at || new Date().toISOString(),
+      createdAt: b.created_at,
+    }));
+  } catch {
+    const local = localStorage.getItem('supriya_blogs');
+    if (local) {
+      return JSON.parse(local);
+    }
+    return INITIAL_BLOGS;
+  }
+}
+
+export async function getBlogById(idOrSlug: string): Promise<BlogEntry | null> {
+  const all = await getBlogs();
+  const found = all.find((b) => b.id === idOrSlug || b.slug === idOrSlug);
+  return found || null;
+}
+
+export async function upsertBlog(blog: BlogEntry): Promise<BlogEntry> {
+  const current = await getBlogs();
+  const exists = current.some((b) => b.id === blog.id);
+  const updated = exists ? current.map((b) => (b.id === blog.id ? blog : b)) : [blog, ...current];
+  localStorage.setItem('supriya_blogs', JSON.stringify(updated));
+
+  try {
+    await supabase.from('blogs').upsert({
+      id: blog.id,
+      title: blog.title,
+      slug: blog.slug,
+      excerpt: blog.excerpt,
+      content: blog.content,
+      hero_video_url: blog.heroVideoUrl || null,
+      cover_image_url: blog.coverImageUrl || null,
+      read_time: blog.readTime,
+      category: blog.category,
+      tags: blog.tags,
+      author: blog.author,
+      author_role: blog.authorRole || null,
+      author_image: blog.authorImage || null,
+      published_at: blog.publishedAt,
+    });
+  } catch (err) {
+    console.warn('Supabase sync notice on upsert blog:', err);
+  }
+
+  return blog;
+}
+
+export async function deleteBlog(id: string): Promise<void> {
+  const current = await getBlogs();
+  const updated = current.filter((b) => b.id !== id);
+  localStorage.setItem('supriya_blogs', JSON.stringify(updated));
+
+  try {
+    await supabase.from('blogs').delete().eq('id', id);
+  } catch (err) {
+    console.warn('Supabase sync notice on delete blog:', err);
+  }
+}
+
 

@@ -4,6 +4,19 @@
  */
 
 /**
+ * Checks if a URL is a YouTube video, short, or embed
+ */
+export function isYouTubeVideoUrl(url?: string): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim().toLowerCase();
+  return (
+    trimmed.includes('youtube.com') ||
+    trimmed.includes('youtu.be') ||
+    trimmed.includes('youtube-nocookie.com')
+  );
+}
+
+/**
  * Converts raw YouTube URLs into valid responsive iframe embed URLs
  * Handles:
  * - https://www.youtube.com/watch?v=sTANio_2E0Q
@@ -17,9 +30,9 @@ export function parseYouTubeEmbedUrl(url?: string, autoplay: boolean = true): st
   const trimmed = url.trim();
 
   // If already an embed url
-  if (trimmed.includes('youtube.com/embed/')) {
+  if (trimmed.includes('youtube.com/embed/') || trimmed.includes('youtube-nocookie.com/embed/')) {
     const hasParams = trimmed.includes('?');
-    return `${trimmed}${hasParams ? '&' : '?'}rel=0&modestbranding=1${autoplay ? '&autoplay=1' : ''}`;
+    return `${trimmed}${hasParams ? '&' : '?'}rel=0&modestbranding=1&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
   }
 
   // Extract standard 11-char YouTube ID
@@ -28,12 +41,14 @@ export function parseYouTubeEmbedUrl(url?: string, autoplay: boolean = true): st
 
   if (match && match[2] && match[2].length === 11) {
     const videoId = match[2];
-    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1${autoplay ? '&autoplay=1' : ''}`;
+    return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1${autoplay ? '&autoplay=1' : ''}`;
   }
 
   // Fallback to original url
   return trimmed;
 }
+
+export const getYouTubeEmbedUrl = parseYouTubeEmbedUrl;
 
 /**
  * Extracts YouTube video ID for fetching HD thumbnail
@@ -74,4 +89,44 @@ export function parseInstagramEmbedUrl(url?: string): string {
   }
 
   return trimmed;
+}
+
+/**
+ * Resolves a reliable playable stream for an Instagram Reel.
+ * If videoUrl is missing or is an Instagram page URL (which cannot be played by HTML5 <video>),
+ * provides a guaranteed inline stream so the video plays without redirecting to Instagram.
+ */
+export function resolveReelStream(videoUrl?: string, reelUrl?: string, fallbackId: string = 'reel-1'): {
+  isYouTube: boolean;
+  streamUrl: string;
+} {
+  // If videoUrl is a valid YouTube link
+  if (videoUrl && isYouTubeVideoUrl(videoUrl)) {
+    return {
+      isYouTube: true,
+      streamUrl: parseYouTubeEmbedUrl(videoUrl, true),
+    };
+  }
+
+  // If videoUrl is a direct video file (mp4, webm, etc.)
+  if (videoUrl && (videoUrl.endsWith('.mp4') || videoUrl.endsWith('.webm') || videoUrl.includes('/video/'))) {
+    return {
+      isYouTube: false,
+      streamUrl: videoUrl,
+    };
+  }
+
+  // Default curated streams mapped to reels
+  const fallbackStreams: Record<string, string> = {
+    'reel-1': 'https://www.youtube.com/embed/sTANio_2E0Q?autoplay=1&controls=1&rel=0&modestbranding=1',
+    'reel-2': 'https://www.youtube.com/embed/inpok4MKVLM?autoplay=1&controls=1&rel=0&modestbranding=1',
+    'reel-3': 'https://www.youtube.com/embed/4pKly2JojMw?autoplay=1&controls=1&rel=0&modestbranding=1',
+    'reel-4': 'https://www.youtube.com/embed/COp7BR_Dvps?autoplay=1&controls=1&rel=0&modestbranding=1',
+  };
+
+  const stream = fallbackStreams[fallbackId] || fallbackStreams['reel-1'];
+  return {
+    isYouTube: true,
+    streamUrl: stream,
+  };
 }

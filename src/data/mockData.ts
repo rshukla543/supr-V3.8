@@ -1,7 +1,9 @@
 import { VideoContent, InstagramReel, ServiceItem } from '../types';
 
 export const VIDEO_DATA: VideoContent[] = [
-  // Yoga (YouTube) - 6 Masterclasses
+  // =========================================================================
+  // 1. YOGA (3 Targeted Masterclasses)
+  // =========================================================================
   {
     id: 'yoga-yt-1',
     title: '25-Min Radiant Morning Vinyasa: Core Vitality & Solar Plexus Activation',
@@ -10,18 +12,18 @@ export const VIDEO_DATA: VideoContent[] = [
     views: '168K views',
     date: '3 days ago',
     description: 'Awaken physical strength, ignite metabolic agni, and calibrate your somatic nervous system through fluid, alignment-focused sequences.',
-    tags: ['Vinyasa Flow', 'Morning Power', 'All Levels'],
+    tags: ['Yoga'],
     thumbnailGradient: 'from-[#4C1D95] via-[#2E1065] to-[#0F0728]',
     thumbnailAccent: '#C084FC',
     accentIcon: 'yoga',
     videoUrl: 'https://www.youtube.com/watch?v=sTANio_2E0Q',
     chapters: [
-      { time: '0:00', title: 'Centering & Pranayama Breath' },
+      { time: '0:00', title: 'Centering & Surya Breath' },
       { time: '4:15', title: 'Spinal Waves & Cat-Cow Dynamic' },
       { time: '9:30', title: 'Surya Namaskar Dynamic Series' },
       { time: '16:00', title: 'Warrior III & Half Moon Balances' },
       { time: '21:40', title: 'Supine Spinal Release & Savasana' },
-    ]
+    ],
   },
   {
     id: 'yoga-yt-2',
@@ -31,7 +33,7 @@ export const VIDEO_DATA: VideoContent[] = [
     views: '214K views',
     date: '1 week ago',
     description: 'Slow down with therapeutic 4-minute holds targeting deep connective tissue in hips, lower spine, and shoulders for profound sleep restoration.',
-    tags: ['Yin Yoga', 'Somatic Release', 'Sleep Hygiene'],
+    tags: ['Yoga'],
     thumbnailGradient: 'from-[#3B0764] via-[#1E0638] to-[#090214]',
     thumbnailAccent: '#F59E0B',
     accentIcon: 'yoga',
@@ -42,91 +44,224 @@ export const VIDEO_DATA: VideoContent[] = [
       { time: '12:15', title: 'Dragonfly & Lateral Side Opens' },
       { time: '22:00', title: 'Reclined Deer Pose' },
       { time: '29:30', title: 'Yoga Nidra Integration' },
-    ]
+    ],
   },
   {
     id: 'yoga-yt-3',
-    title: 'Biomechanics of Handstands & Inversions: Shoulder Elevation Drills',
+    title: 'Classical Hatha Alignment: Sthira Sukham Asanam & Structural Equilibrium',
+    category: 'Yoga (YouTube)',
+    duration: '28:50',
+    views: '142K views',
+    date: '2 weeks ago',
+    description: 'Explore the classical roots of Hatha yoga in Baroda. Ground through pada bandha, lengthen through the crown, and inhabit steady ease.',
+    tags: ['Yoga'],
+    thumbnailGradient: 'from-[#1E1B4B] via-[#2E1065] to-[#090314]',
+    thumbnailAccent: '#818CF8',
+    accentIcon: 'yoga',
+    videoUrl: 'https://www.youtube.com/watch?v=COp7BR_Dvps',
+    chapters: [
+      { time: '0:00', title: 'Invocation & Tadasana Foundation' },
+      { time: '5:30', title: 'Trikonasana & Parsvakonasana Alignment' },
+      { time: '14:20', title: 'Paschimottanasana with Breath Rhythms' },
+      { time: '22:15', title: 'Savasana & Pranic Attunement' },
+    ],
+  },
+
+  // =========================================================================
+  // 2. PRANAYAMA (3 Targeted Masterclasses)
+  // =========================================================================
+  {
+    id: 'pranayam-yt-1',
+    title: 'Nadi Shodhana & Anulom Vilom: Balancing Solar & Lunar Prana Channels',
+    category: 'Yoga (YouTube)',
+    duration: '22:15',
+    views: '185K views',
+    date: '4 days ago',
+    description: 'Master alternate nostril breathing to purify Ida and Pingala nadis, calm racing cognitive beta waves, and drop into parasympathetic bliss.',
+    tags: ['Pranayam'],
+    thumbnailGradient: 'from-[#431407] via-[#311059] to-[#0D041A]',
+    thumbnailAccent: '#F97316',
+    accentIcon: 'pranayama',
+    videoUrl: 'https://www.youtube.com/watch?v=inpok4MKVLM',
+    chapters: [
+      { time: '0:00', title: 'Pranayama Posture & Vishnu Mudra' },
+      { time: '4:20', title: '1:1 Ratio Balancing Cycles' },
+      { time: '11:10', title: 'Antar Kumbhaka (Breath Retention)' },
+      { time: '18:00', title: 'Silent Spontaneous Respiration' },
+    ],
+  },
+  {
+    id: 'pranayam-yt-2',
+    title: 'Vagus Nerve 4-7-8 Somatic Reset: Regulating Fight-or-Flight Cortisol',
+    category: 'Yoga (YouTube)',
+    duration: '18:30',
+    views: '290K views',
+    date: '1 week ago',
+    description: 'A scientifically validated breathwork protocol to stimulate the ventral vagus nerve branch, down-regulating anxiety and restoring heart-rate variability.',
+    tags: ['Pranayam'],
+    thumbnailGradient: 'from-[#701A75] via-[#2E1065] to-[#0A0518]',
+    thumbnailAccent: '#E879F9',
+    accentIcon: 'pranayama',
+    videoUrl: 'https://www.youtube.com/watch?v=hJbRpHZr_d0',
+    chapters: [
+      { time: '0:00', title: 'Neurobiology of the Vagus Nerve' },
+      { time: '3:45', title: 'Diaphragmatic Expansion Drills' },
+      { time: '9:15', title: '4-7-8 Breathing Rounds with Audible Exhale' },
+      { time: '15:20', title: 'Somatic Somnolence & Integration' },
+    ],
+  },
+  {
+    id: 'pranayam-yt-3',
+    title: 'Kapalabhati & Bhramari (Humming Bee): Cleansing Pranic Energy & Nitric Oxide',
+    category: 'Yoga (YouTube)',
+    duration: '24:00',
+    views: '135K views',
+    date: '3 weeks ago',
+    description: 'Combine skull-shining active exhalations with humming bee acoustic resonance to boost nasal nitric oxide and induce deep cerebral stillness.',
+    tags: ['Pranayam'],
+    thumbnailGradient: 'from-[#14532D] via-[#1E1B4B] to-[#0B0914]',
+    thumbnailAccent: '#34D399',
+    accentIcon: 'pranayama',
+    videoUrl: 'https://www.youtube.com/watch?v=glT0sH_p9z8',
+    chapters: [
+      { time: '0:00', title: 'Contraindications & Core Activation' },
+      { time: '4:30', title: 'Three Rounds of 30 Kapalabhati Pumps' },
+      { time: '12:00', title: 'Shanmukhi Mudra & Bhramari Resonance' },
+      { time: '19:30', title: 'Internal Soundless Vibration' },
+    ],
+  },
+
+  // =========================================================================
+  // 3. BIOMECHANICS (3 Targeted Masterclasses)
+  // =========================================================================
+  {
+    id: 'biomechanics-yt-1',
+    title: 'Biomechanics of Inversions: Scapular Elevation & Straight Handstand Line',
     category: 'Yoga (YouTube)',
     duration: '19:25',
     views: '129K views',
     date: '2 weeks ago',
-    description: 'Demystifying arm balances through scientific scapular protraction, hollow body tension drills, and safe wall-assisted progressions.',
-    tags: ['Inversion Lab', 'Biomechanics', 'Strength'],
+    description: 'Demystifying arm balances through scientific serratus anterior activation, hollow body tension drills, and safe wall-assisted progressions.',
+    tags: ['Biomechanics'],
     thumbnailGradient: 'from-[#581C87] via-[#2E1065] to-[#120726]',
     thumbnailAccent: '#A78BFA',
-    accentIcon: 'yoga',
+    accentIcon: 'biomechanics',
     videoUrl: 'https://www.youtube.com/watch?v=glT0sH_p9z8',
     chapters: [
       { time: '0:00', title: 'Wrist & Scapular Warmup' },
       { time: '4:10', title: 'Hollow Body Conditioning' },
       { time: '8:45', title: 'L-Stand at the Wall' },
       { time: '14:20', title: 'Floating Kickups & Exit Strategies' },
-    ]
+    ],
   },
   {
-    id: 'yoga-yt-4',
-    title: '40-Min Chakra Realignment Vinyasa: Root to Crown Kundalini Flow',
-    category: 'Yoga (YouTube)',
-    duration: '42:15',
-    views: '195K views',
-    date: '3 weeks ago',
-    description: 'A transformative multi-stage sequence harmonizing each energetic center with therapeutic bīja mantras, side bends, and spinal spirals.',
-    tags: ['Chakra Balance', 'Full Body Flow', 'Pranic Awakening'],
-    thumbnailGradient: 'from-[#431407] via-[#311059] to-[#0D041A]',
-    thumbnailAccent: '#F97316',
-    accentIcon: 'yoga',
-    videoUrl: 'https://www.youtube.com/watch?v=inpok4MKVLM',
-    chapters: [
-      { time: '0:00', title: 'Muladhara Grounding' },
-      { time: '8:20', title: 'Manipura Ignition' },
-      { time: '18:10', title: 'Anahata Chest Expansion' },
-      { time: '30:00', title: 'Ajna Meditation Hold' },
-      { time: '38:00', title: 'Cosmic Savasana' },
-    ]
-  },
-  {
-    id: 'yoga-yt-5',
-    title: 'Hip Opening Therapy: Releasing Trapped Emotional Tension & Psoas Tightness',
+    id: 'biomechanics-yt-2',
+    title: 'Pelvic Diaphragm & Neutral Lumbar: Unlocking Psoas Tightness for Desk Workers',
     category: 'Yoga (YouTube)',
     duration: '31:40',
     views: '310K views',
     date: '1 month ago',
-    description: 'Scientific myofascial release for tight hip flexors and deep glutes, easing lower back pressure and restoring somatic equilibrium.',
-    tags: ['Hip Opening', 'Psoas Release', 'Mobility'],
+    description: 'Scientific myofascial release for chronically shortened hip flexors and deep glutes, easing lower back pressure and restoring pelvic neutral.',
+    tags: ['Biomechanics'],
     thumbnailGradient: 'from-[#701A75] via-[#2E1065] to-[#0A0518]',
     thumbnailAccent: '#E879F9',
-    accentIcon: 'yoga',
+    accentIcon: 'biomechanics',
     videoUrl: 'https://www.youtube.com/watch?v=4pKly2JojMw',
     chapters: [
       { time: '0:00', title: 'Pelvic Rocking & Diaphragmatic Breath' },
       { time: '6:30', title: 'Low Lunge & Quad Isometric Opens' },
       { time: '15:45', title: 'Pigeon Variations with Blocks' },
       { time: '24:00', title: 'Reclined Gomukhasana' },
-    ]
+    ],
   },
   {
-    id: 'yoga-yt-6',
-    title: 'Gentle Restorative Yoga with Props: Resetting the Adrenal System',
+    id: 'biomechanics-yt-3',
+    title: 'Rotator Cuff & Shoulder Centration for Chaturanga: Protecting Your Joints',
     category: 'Yoga (YouTube)',
-    duration: '28:50',
-    views: '142K views',
-    date: '1 month ago',
-    description: 'Use blankets and bolsters to completely decompress joints, lower cortisol, and trigger the parasympathetic rest-and-digest response.',
-    tags: ['Restorative', 'Adrenal Reset', 'Gentle Practice'],
-    thumbnailGradient: 'from-[#1E1B4B] via-[#2E1065] to-[#090314]',
-    thumbnailAccent: '#818CF8',
-    accentIcon: 'yoga',
-    videoUrl: 'https://www.youtube.com/watch?v=COp7BR_Dvps',
+    duration: '21:10',
+    views: '154K views',
+    date: '3 weeks ago',
+    description: 'Learn how to transition into Chaturanga Dandasana without anterior humeral glide. Essential joint kinematics for long-term practice safety.',
+    tags: ['Biomechanics'],
+    thumbnailGradient: 'from-[#1E3A8A] via-[#1E1B4B] to-[#090314]',
+    thumbnailAccent: '#60A5FA',
+    accentIcon: 'biomechanics',
+    videoUrl: 'https://www.youtube.com/watch?v=sTANio_2E0Q',
     chapters: [
-      { time: '0:00', title: 'Setting Bolsters & Mindset' },
-      { time: '5:10', title: 'Supported Child Pose' },
-      { time: '14:20', title: 'Viparita Karani (Legs up Wall)' },
-      { time: '22:15', title: 'Pranayama in Reclined Butterfly' },
-    ]
+      { time: '0:00', title: 'Rotator Cuff Anatomy & Centration' },
+      { time: '5:10', title: 'Plank Protraction to Retraction' },
+      { time: '11:30', title: 'Modified Chaturanga with Yoga Strap' },
+      { time: '17:20', title: 'Seamless Upward Dog Transition' },
+    ],
   },
 
-  // Lifestyle Vlogs - 4 Deep-Dives
+  // =========================================================================
+  // 4. STRENGTH (3 Targeted Masterclasses)
+  // =========================================================================
+  {
+    id: 'strength-yt-1',
+    title: 'Dynamic Power Asana: Arm Balances, Bandhas & Core Power Conditioning',
+    category: 'Yoga (YouTube)',
+    duration: '32:00',
+    views: '240K views',
+    date: '1 week ago',
+    description: 'Build functional tendon and muscular strength through Uddiyana Bandha engagement, Bakasana float transitions, and sustained isometric holds.',
+    tags: ['Strength'],
+    thumbnailGradient: 'from-[#831843] via-[#3B0764] to-[#0F0728]',
+    thumbnailAccent: '#F43F5E',
+    accentIcon: 'strength',
+    videoUrl: 'https://www.youtube.com/watch?v=sTANio_2E0Q',
+    chapters: [
+      { time: '0:00', title: 'Bandha Engagement & Heat Creation' },
+      { time: '6:20', title: 'Core Hollow Holds to Navasana' },
+      { time: '15:00', title: 'Crow to Chaturanga Jumpbacks' },
+      { time: '25:30', title: 'Cooldown & Wrist Decompression' },
+    ],
+  },
+  {
+    id: 'strength-yt-2',
+    title: 'Isometric Glute & Posterior Chain Awakening for Grounded Balance',
+    category: 'Yoga (YouTube)',
+    duration: '26:45',
+    views: '175K views',
+    date: '2 weeks ago',
+    description: 'Strengthen the gluteus medius, hamstrings, and spinal extensors to construct bulletproof balance in standing single-leg postures.',
+    tags: ['Strength'],
+    thumbnailGradient: 'from-[#4C1D95] via-[#2E1065] to-[#0A0518]',
+    thumbnailAccent: '#C084FC',
+    accentIcon: 'strength',
+    videoUrl: 'https://www.youtube.com/watch?v=4pKly2JojMw',
+    chapters: [
+      { time: '0:00', title: 'Posterior Chain Kinetic Activation' },
+      { time: '5:40', title: 'Bridge Variations & Hamstring Drills' },
+      { time: '14:15', title: 'Warrior III Dynamic Pulses' },
+      { time: '21:00', title: 'Active Reclined Release' },
+    ],
+  },
+  {
+    id: 'strength-yt-3',
+    title: 'Warrior Endurance Series: Building Lower-Body Stamina & Drishti Grit',
+    category: 'Yoga (YouTube)',
+    duration: '29:15',
+    views: '198K views',
+    date: '1 month ago',
+    description: 'Deep holds in Virabhadrasana I, II, and Reverse Warrior cultivating mental tenacity, quad endurance, and unwavering inner composure.',
+    tags: ['Strength'],
+    thumbnailGradient: 'from-[#7F1D1D] via-[#3B0764] to-[#0B0914]',
+    thumbnailAccent: '#FB7185',
+    accentIcon: 'strength',
+    videoUrl: 'https://www.youtube.com/watch?v=b1H3xO3x_Js',
+    chapters: [
+      { time: '0:00', title: 'Grounding Root Lock Focus' },
+      { time: '6:00', title: 'High Lunge to Warrior II Waves' },
+      { time: '16:30', title: 'Extended Side Angle Endurance Holds' },
+      { time: '24:00', title: 'Restorative Forward Fold Integration' },
+    ],
+  },
+
+  // =========================================================================
+  // 5. LIFESTYLE VLOGS (4 Deep-Dives)
+  // =========================================================================
   {
     id: 'vlog-1',
     title: 'A High-Vibration Sunday: High-Protein Plant Meals, Studio Tour & Altar Setup',
@@ -142,10 +277,10 @@ export const VIDEO_DATA: VideoContent[] = [
     videoUrl: 'https://www.youtube.com/watch?v=hJbRpHZr_d0',
     chapters: [
       { time: '0:00', title: 'Sunrise Ceremonial Matcha' },
-      { time: '5:20', title: 'Farmer\'s Market Whole Food Haul' },
+      { time: '5:20', title: "Farmer's Market Whole Food Haul" },
       { time: '11:40', title: 'Cooking Golden Turmeric Bowls' },
       { time: '19:15', title: 'Offline Evening Winddown' },
-    ]
+    ],
   },
   {
     id: 'vlog-2',
@@ -159,24 +294,24 @@ export const VIDEO_DATA: VideoContent[] = [
     thumbnailGradient: 'from-[#4C1D95] via-[#260C54] to-[#0D041C]',
     thumbnailAccent: '#E9D5FF',
     accentIcon: 'vlog',
-    videoUrl: 'https://www.youtube.com/watch?v=W3a4k-3iCgM',
+    videoUrl: 'https://www.youtube.com/watch?v=glT0sH_p9z8',
     chapters: [
-      { time: '0:00', title: 'Surrendering My Phone' },
-      { time: '7:15', title: 'The Physical Pain of 10-hr Sittings' },
-      { time: '16:40', title: 'The Breakthrough Moment' },
-      { time: '24:50', title: 'Returning to the World' },
-    ]
+      { time: '0:00', title: 'Surrendering My Phone at Registration' },
+      { time: '7:45', title: 'Day 3: The Mental Rebellion' },
+      { time: '16:10', title: 'Day 7: The Breakthrough of Anicca' },
+      { time: '25:00', title: 'Re-entering City Vibration in Gujarat' },
+    ],
   },
   {
     id: 'vlog-3',
-    title: 'Minimalist Apartment Sanctuary: Lighting, Linen & Spatial Geometry Tour',
+    title: 'Tour My Minimalist Mindful Living Apartment in Vadodara: Sacred Design',
     category: 'Lifestyle Vlogs',
     duration: '18:45',
-    views: '76K views',
+    views: '115K views',
     date: '1 month ago',
-    description: 'How to curate an intentional sanctuary in a small space using warm diffused lighting, natural organic materials, and botanical air purifiers.',
-    tags: ['Home Sanctuary', 'Aesthetic Decor', 'Wellness Space'],
-    thumbnailGradient: 'from-[#581C87] via-[#380E68] to-[#110424]',
+    description: 'How spatial design, circadian lighting, natural linen textures, and non-toxic earthen materials transform your home into a sanctuary for healing.',
+    tags: ['Minimalism', 'Interior Space', 'Sanctuary Design'],
+    thumbnailGradient: 'from-[#581C87] via-[#2E1065] to-[#100726]',
     thumbnailAccent: '#F59E0B',
     accentIcon: 'vlog',
     videoUrl: 'https://www.youtube.com/watch?v=v7AYKMP6rOE',
@@ -184,7 +319,7 @@ export const VIDEO_DATA: VideoContent[] = [
       { time: '0:00', title: 'The Philosophy of Space' },
       { time: '5:10', title: 'Lighting as Circadian Cue' },
       { time: '12:30', title: 'Sacred Meditation Altar' },
-    ]
+    ],
   },
   {
     id: 'vlog-4',
@@ -204,10 +339,13 @@ export const VIDEO_DATA: VideoContent[] = [
       { time: '6:15', title: 'Saving 6 Months of Expenses' },
       { time: '13:40', title: 'First 200hr TTC in Rishikesh' },
       { time: '20:10', title: 'Lessons for Aspiring Teachers' },
-    ]
-  }
+    ],
+  },
 ];
 
+// =========================================================================
+// INSTAGRAM REELS (Exactly 4 Entries with Real Working Inline Playback)
+// =========================================================================
 export const INSTAGRAM_REELS: InstagramReel[] = [
   {
     id: 'reel-1',
@@ -225,7 +363,7 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['YogaTips', 'Biomechanics', 'FormCheck'],
     date: 'Yesterday',
     reelUrl: 'https://www.instagram.com/reel/C8qLd95M6P1/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-doing-yoga-on-the-beach-at-sunset-40763-large.mp4',
+    videoUrl: 'https://www.youtube.com/embed/sTANio_2E0Q?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -244,7 +382,7 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['Breathwork', 'AnxietyRelief', 'SomaticHealing'],
     date: '3 days ago',
     reelUrl: 'https://www.instagram.com/reel/C7pKd89x2Z9/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-doing-a-stretching-exercise-on-the-floor-41484-large.mp4',
+    videoUrl: 'https://www.youtube.com/embed/inpok4MKVLM?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -263,7 +401,7 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['WhatIEat', 'HolisticNutrition', 'CleanEating'],
     date: '5 days ago',
     reelUrl: 'https://www.instagram.com/reel/C6oLk11z8X4/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-practicing-yoga-outdoors-on-a-sunny-day-40762-large.mp4',
+    videoUrl: 'https://www.youtube.com/embed/4pKly2JojMw?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -282,85 +420,9 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['MorningRoutine', 'SpineHealth', 'Mobility'],
     date: '1 week ago',
     reelUrl: 'https://www.instagram.com/reel/C5mLp92M4Q8/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-in-a-yoga-pose-on-a-wooden-floor-40765-large.mp4',
+    videoUrl: 'https://www.youtube.com/embed/COp7BR_Dvps?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=600&q=80',
   },
-  {
-    id: 'reel-5',
-    caption: '3 common mistakes in Warrior II that strain your knees! Keep your front knee stacked over the ankle and ground through the back outer blade. ⚔️',
-    creatorHandle: 'supriya_9508',
-    audioTrack: '♫ Sanskrit Chants & Binaural Theta (528Hz)',
-    likesCount: '53.1K',
-    commentsCount: '780',
-    sharesCount: '11.8K',
-    viewsCount: '820K',
-    duration: '0:45',
-    gradient: 'from-purple-950 via-slate-900 to-midnight-950',
-    coverAccent: '#A78BFA',
-    poseName: 'Virabhadrasana II Precision',
-    tags: ['Warrior2', 'Alignment', 'KneeSafety'],
-    date: '10 days ago',
-    reelUrl: 'https://www.instagram.com/reel/C4kLq77r9N2/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-meditating-outdoors-in-a-forest-42296-large.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'reel-6',
-    caption: 'Deep hip tension isn\'t just physical tightness—it is unexpressed somatic emotion. Try 90 seconds of Dragon Pose tonight. 🐉',
-    creatorHandle: 'supriya_9508',
-    audioTrack: '♫ Tibetan Sound Bath - Solfeggio',
-    likesCount: '74.8K',
-    commentsCount: '1.4K',
-    sharesCount: '24.2K',
-    viewsCount: '1.1M',
-    duration: '0:48',
-    gradient: 'from-indigo-950 via-purple-900 to-midnight-950',
-    coverAccent: '#F472B6',
-    poseName: 'Emotional Hip Release',
-    tags: ['YinYoga', 'SomaticRelease', 'HipOpener'],
-    date: '2 weeks ago',
-    reelUrl: 'https://www.instagram.com/reel/C3jLt55k1M7/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-meditating-in-the-lotus-position-on-the-beach-40760-large.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'reel-7',
-    caption: 'Struggling with crow pose (Bakasana)? Stop jumping! Instead, hug inner thighs tight to triceps and shift eye gaze 1 foot ahead. 🦅',
-    creatorHandle: 'supriya_9508',
-    audioTrack: '♫ Deep Focus Beats • High Prana',
-    likesCount: '88.3K',
-    commentsCount: '1.9K',
-    sharesCount: '29.5K',
-    viewsCount: '1.3M',
-    duration: '0:35',
-    gradient: 'from-violet-900 via-fuchsia-950 to-midnight-950',
-    coverAccent: '#38BDF8',
-    poseName: 'Crow Pose Arm Balance',
-    tags: ['Bakasana', 'ArmBalance', 'CorePower'],
-    date: '2 weeks ago',
-    reelUrl: 'https://www.instagram.com/reel/C2iLk33m8P4/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-doing-a-forward-fold-yoga-pose-40761-large.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'reel-8',
-    caption: 'My nightly 5-minute winddown sequence before sleep. Turn off the blue light, light pure beeswax candles, and let your body melt. 🕯️🌙',
-    creatorHandle: 'supriya_9508',
-    audioTrack: '♫ Delta Waves & Rain on Canvas (0.5-4Hz)',
-    likesCount: '104K',
-    commentsCount: '3.1K',
-    sharesCount: '41.8K',
-    viewsCount: '1.8M',
-    duration: '0:58',
-    gradient: 'from-purple-950 via-indigo-950 to-midnight-950',
-    coverAccent: '#FBBF24',
-    poseName: 'Nightly Sleep Downregulation',
-    tags: ['SleepYoga', 'Restorative', 'NightRoutine'],
-    date: '3 weeks ago',
-    reelUrl: 'https://www.instagram.com/reel/C1hLk22w9L3/',
-    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-stretching-her-body-on-the-floor-41481-large.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80',
-  }
 ];
 
 export const SERVICES_DATA: ServiceItem[] = [
@@ -376,11 +438,11 @@ export const SERVICES_DATA: ServiceItem[] = [
       '4x monthly 1-on-1 live 60-minute video mentoring',
       'Custom 4K sequence video library recorded specifically for you',
       'Direct WhatsApp priority voice notes for daily alignment feedback',
-      'Weekly nervous system regulation & pranayama progressions'
+      'Weekly nervous system regulation & pranayama progressions',
     ],
     ctaText: 'Join the Waitlist',
     isPopular: true,
-    type: 'fitness'
+    type: 'fitness',
   },
   {
     id: 'diet-plans',
@@ -394,10 +456,10 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Custom anti-inflammatory weekly recipe blueprints & shopping lists',
       'Targeted herbal & adaptogenic supplementation protocol',
       'Dining-out and travel survival guide for frequent flyers',
-      'Bi-weekly 30-min strategy review calls with Supriya'
+      'Bi-weekly 30-min strategy review calls with Supriya',
     ],
     ctaText: 'Join the Waitlist',
-    type: 'nutrition'
+    type: 'nutrition',
   },
   {
     id: 'brand-collabs',
@@ -411,9 +473,9 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Cinema-grade 4K lifestyle photography and video production',
       'Organic product integrations into viral Sunday vlogs & Reels',
       'Dedicated newsletter spotlight to 24,000+ conscious subscribers',
-      'Comprehensive performance analytics & commercial licensing'
+      'Comprehensive performance analytics & commercial licensing',
     ],
     ctaText: 'Inquire for Partnership',
-    type: 'collaboration'
-  }
+    type: 'collaboration',
+  },
 ];
