@@ -400,13 +400,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteSponsor = async (id: string) => {
-    if (confirm('Delete this brand sponsor from Supabase?')) {
-      await deleteBrandSponsor(id);
-      const fresh = await getBrandSponsors();
-      setSponsorsList(fresh);
-      onRefreshData();
-      showNotification('Brand Sponsor removed.');
-    }
+    await deleteBrandSponsor(id);
+    const fresh = await getBrandSponsors();
+    setSponsorsList(fresh);
+    onRefreshData();
+    showNotification('Brand Sponsor removed.');
   };
 
   // DAILY INTENTION HANDLERS
@@ -441,11 +439,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteTestimonial = async (id: string) => {
-    if (confirm('Permanently delete this testimonial?')) {
-      await deleteTestimonial(id);
-      onRefreshData();
-      showNotification('Testimonial removed from database.');
-    }
+    await deleteTestimonial(id);
+    onRefreshData();
+    showNotification('Testimonial removed from database.');
   };
 
   const handleManualAddTestimonial = async (e: React.FormEvent) => {
@@ -639,11 +635,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteGallery = async (id: string) => {
-    if (confirm('Delete this image from gallery carousel?')) {
-      await deleteGalleryImage(id);
-      onRefreshData();
-      showNotification('Image deleted from database.');
-    }
+    await deleteGalleryImage(id);
+    onRefreshData();
+    showNotification('Image deleted from database.');
   };
 
   // 5. CONTENT VAULT (VIDEOS & REELS) HANDLERS
@@ -691,11 +685,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteVideo = async (id: string) => {
-    if (confirm('Delete this video from Supabase database?')) {
-      await deleteVideo(id);
-      onRefreshData();
-      showNotification('Video deleted from database.');
-    }
+    await deleteVideo(id);
+    onRefreshData();
+    showNotification('Video deleted from database.');
   };
 
   const handleSaveReel = async (e: React.FormEvent) => {
@@ -732,11 +724,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteReel = async (id: string) => {
-    if (confirm('Delete this reel from Supabase database?')) {
-      await deleteReel(id);
-      onRefreshData();
-      showNotification('Reel deleted from database.');
-    }
+    await deleteReel(id);
+    onRefreshData();
+    showNotification('Reel deleted from database.');
   };
 
   // 6. SERVICES HANDLERS

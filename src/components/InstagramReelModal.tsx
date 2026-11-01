@@ -29,7 +29,7 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
   reel,
   onClose,
 }) => {
-  const [viewMode, setViewMode] = useState<'player' | 'embed'>('player');
+  const [viewMode, setViewMode] = useState<'player' | 'embed'>('embed');
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
@@ -52,7 +52,7 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
       setIsPlaying(true);
       setIsMuted(true);
       setProgress(0);
-      setViewMode('player');
+      setViewMode('embed');
     }
   }, [reel]);
 

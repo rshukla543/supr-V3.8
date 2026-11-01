@@ -21,6 +21,10 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings, onOpenPri
   const managerHandle = siteSettings?.managerHandle || '@shlok.brahmbhatt';
   const managementEmail = siteSettings?.managementEmail || 'management@supriyabhavsar.com';
   const instagramHandle = siteSettings?.instagramHandle || '@supriya_9508';
+  const youtubeChannel = siteSettings?.youtubeChannel || '@supriyabhavsar7343';
+  const youtubeUrl = youtubeChannel.startsWith('http')
+    ? youtubeChannel
+    : `https://youtube.com/${youtubeChannel.startsWith('@') ? youtubeChannel : '@' + youtubeChannel}`;
 
   return (
     <footer className="bg-[#07050F] text-slate-300 pt-16 pb-20 md:pb-12 border-t border-purple-500/15 relative z-10">
@@ -66,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ logoUrl, siteSettings, onOpenPri
             {/* Social Icons - Center aligned on mobile */}
             <div className="flex items-center justify-center md:justify-start gap-3">
               <a
-                href="https://youtube.com/@supriyabhavsar_yoga"
+                href={youtubeUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-full bg-white/[0.05] border border-purple-500/20 flex items-center justify-center text-slate-300 hover:bg-purple-600 hover:text-white hover:border-purple-400 transition-all"
