@@ -694,29 +694,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     e.preventDefault();
     const reelToSave: InstagramReel = {
       id: editingReel ? editingReel.id : `reel-${Date.now()}`,
-      caption: newReelCaption || 'New reel tip',
+      caption: newReelCaption || 'Bite-sized somatic yoga drill & movement alignment.',
       creatorHandle: 'supriya_9508',
-      audioTrack: newReelAudio,
-      likesCount: newReelLikes,
+      audioTrack: newReelAudio || '♫ Original Audio • Supriya',
+      likesCount: newReelLikes || '48.5K',
       commentsCount: editingReel?.commentsCount || '500',
       sharesCount: editingReel?.sharesCount || '2.5K',
       viewsCount: editingReel?.viewsCount || '150K',
-      duration: newReelDuration,
+      duration: newReelDuration || '0:45',
       gradient: editingReel?.gradient || 'from-purple-950 via-slate-900 to-black',
       coverAccent: editingReel?.coverAccent || '#A855F7',
-      poseName: newReelPose || 'Somatic Fix',
+      poseName: newReelPose || 'Somatic Alignment',
       tags: editingReel?.tags || ['YogaTips', 'Movement'],
-      date: 'Recent',
-      reelUrl: newReelUrl || 'https://www.instagram.com/reel/C-xyz123/',
-      videoUrl: newReelVideoUrl || editingReel?.videoUrl,
-      thumbnailUrl: newReelThumbnailUrl || editingReel?.thumbnailUrl,
+      date: editingReel?.date || 'Recent',
+      reelUrl: newReelUrl || 'https://www.instagram.com/reel/C8qLd95M6P1/',
+      thumbnailUrl: newReelThumbnailUrl || editingReel?.thumbnailUrl || 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80',
     };
 
     await upsertReel(reelToSave);
     setEditingReel(null);
     setNewReelPose('');
     setNewReelCaption('');
-    setNewReelUrl('https://www.instagram.com/reel/C-xyz123/');
+    setNewReelUrl('https://www.instagram.com/reel/C8qLd95M6P1/');
     setNewReelVideoUrl('');
     setNewReelThumbnailUrl('');
     onRefreshData();
@@ -724,9 +723,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteReel = async (id: string) => {
-    await deleteReel(id);
-    onRefreshData();
-    showNotification('Reel deleted from database.');
+    if (window.confirm('Are you sure you want to delete this Instagram Reel?')) {
+      await deleteReel(id);
+      onRefreshData();
+      showNotification('Reel deleted from database.');
+    }
   };
 
   // 6. SERVICES HANDLERS
@@ -1917,7 +1918,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Pose / Adjustment Name *</label>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Pose / Drill Title *</label>
                               <input
                                 type="text"
                                 required
@@ -1928,7 +1929,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               />
                             </div>
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Instagram Reel URL *</label>
+                              <label className="block text-xs uppercase text-purple-300 font-semibold mb-1">Instagram Reel URL (e.g. /reel/C8qLd95M6P1/) *</label>
                               <input
                                 type="url"
                                 required
@@ -1942,20 +1943,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-xs uppercase text-purple-300 font-semibold mb-1">
-                                Optional Direct Video File URL (MP4 / WebM)
-                              </label>
-                              <input
-                                type="text"
-                                value={newReelVideoUrl}
-                                onChange={(e) => setNewReelVideoUrl(e.target.value)}
-                                placeholder="https://domain.com/video.mp4 (Optional direct file)"
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-purple-300 font-semibold mb-1">
-                                Custom Poster Thumbnail Image URL
+                              <label className="block text-xs uppercase text-slate-300 mb-1">
+                                Optional Custom Poster / Cover Image URL
                               </label>
                               <input
                                 type="text"
@@ -1971,13 +1960,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     alt="Poster Preview"
                                     className="w-8 h-12 rounded object-cover border border-purple-400/40 shrink-0"
                                   />
-                                  <span className="text-[11px] text-purple-300 font-mono truncate">Poster Image Ready</span>
+                                  <span className="text-[11px] text-purple-300 font-mono truncate">Cover Preview</span>
                                 </div>
                               )}
                             </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Audio Track / Theme</label>
+                              <input
+                                type="text"
+                                value={newReelAudio}
+                                onChange={(e) => setNewReelAudio(e.target.value)}
+                                placeholder="♫ Original Audio • Supriya"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-xs uppercase text-slate-300 mb-1">Likes Count</label>
                               <input
@@ -1995,16 +1994,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 value={newReelDuration}
                                 onChange={(e) => setNewReelDuration(e.target.value)}
                                 placeholder="0:45"
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Audio Track</label>
-                              <input
-                                type="text"
-                                value={newReelAudio}
-                                onChange={(e) => setNewReelAudio(e.target.value)}
-                                placeholder="♫ Original Audio • Supriya"
                                 className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
                               />
                             </div>

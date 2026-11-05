@@ -600,22 +600,19 @@ export async function deleteVideo(id: string): Promise<void> {
   }
 }
 
-// REELS (Strictly 4 Curated Entries with Working Playable Streams)
+// REELS (Exclusively Instagram Reels)
 export async function getReels(): Promise<InstagramReel[]> {
   try {
-    const { data, error } = await supabase.from('instagram_reels').select('*');
+    const { data, error } = await supabase.from('instagram_reels').select('*').order('date', { ascending: false });
     if (error || !data || data.length === 0) {
       const local = localStorage.getItem('supriya_reels');
-      return local ? JSON.parse(local).slice(0, 4) : INSTAGRAM_REELS.slice(0, 4);
+      return local ? JSON.parse(local) : INSTAGRAM_REELS;
     }
 
-    // Map each item and guarantee working videoUrl, thumbnailUrl, and valid Instagram link
+    // Map each item and guarantee valid Instagram link
     const mapped: InstagramReel[] = data.map((item, idx) => {
       const fallback = INSTAGRAM_REELS[idx % INSTAGRAM_REELS.length];
-      const validReelUrl =
-        item.reel_url && !item.reel_url.includes('sample') && !item.reel_url.includes('xyz')
-          ? item.reel_url
-          : fallback.reelUrl;
+      const validReelUrl = item.reel_url || fallback.reelUrl;
 
       return {
         id: item.id || fallback.id,
@@ -636,15 +633,15 @@ export async function getReels(): Promise<InstagramReel[]> {
         tags: item.tags && item.tags.length > 0 ? item.tags : fallback.tags,
         date: item.date || fallback.date,
         reelUrl: validReelUrl,
-        videoUrl: item.video_url || item.videoUrl || fallback.videoUrl,
+        videoUrl: undefined,
         thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || fallback.thumbnailUrl,
       };
     });
 
-    return mapped.slice(0, 4);
+    return mapped;
   } catch {
     const local = localStorage.getItem('supriya_reels');
-    return local ? JSON.parse(local).slice(0, 4) : INSTAGRAM_REELS.slice(0, 4);
+    return local ? JSON.parse(local) : INSTAGRAM_REELS;
   }
 }
 
@@ -652,7 +649,7 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
   const current = await getReels();
   const exists = current.some((r) => r.id === reel.id);
   const updated = exists ? current.map((r) => (r.id === reel.id ? reel : r)) : [reel, ...current];
-  localStorage.setItem('supriya_reels', JSON.stringify(updated.slice(0, 4)));
+  localStorage.setItem('supriya_reels', JSON.stringify(updated));
 
   try {
     await supabase.from('instagram_reels').upsert({
@@ -671,7 +668,6 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
       tags: reel.tags,
       date: reel.date,
       reel_url: reel.reelUrl || null,
-      video_url: reel.videoUrl || null,
       thumbnail_url: reel.thumbnailUrl || null,
     });
   } catch (err) {
@@ -687,7 +683,7 @@ export async function deleteReel(id: string): Promise<void> {
   try {
     await supabase.from('instagram_reels').delete().eq('id', id);
   } catch (err) {
-    console.warn('Supabase sync notice:', err);
+    console.warn('Supabase sync notice on deleteReel:', err);
   }
 }
 

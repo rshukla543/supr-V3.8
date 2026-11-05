@@ -64,8 +64,8 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
           </p>
         </motion.div>
 
-        {/* Cinematic Vlog & Article Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* Cinematic Vlog & Article Cards Grid (Equal Heights across all 3 cards) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {vlogs.slice(0, 3).map((vlog, idx) => {
             const ytThumb = getYouTubeThumbnailUrl(vlog.videoUrl);
             const thumbSrc = vlog.customThumbnailUrl || ytThumb;
@@ -82,7 +82,7 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 whileHover={{ y: -6 }}
-                className="group relative rounded-3xl overflow-hidden bg-[#140E28]/85 border border-purple-500/20 hover:border-purple-400/40 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)] transition-all flex flex-col justify-between"
+                className="group relative rounded-3xl overflow-hidden bg-[#140E28]/85 border border-purple-500/20 hover:border-purple-400/40 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)] transition-all flex flex-col justify-between h-full"
               >
                 <div>
                   {/* Thumbnail Banner with 16:9 ratio - click to watch video */}
@@ -143,11 +143,11 @@ export const LifestyleVlogsSection: React.FC<LifestyleVlogsSectionProps> = ({
                       ))}
                     </div>
 
-                    <h3 className="font-serif text-lg font-semibold text-white leading-snug line-clamp-2 group-hover:text-purple-200 transition-colors mb-2.5">
+                    <h3 className="font-serif text-lg font-semibold text-white leading-snug line-clamp-2 group-hover:text-purple-200 transition-colors mb-2.5 min-h-[3.25rem]">
                       {vlog.title}
                     </h3>
 
-                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-4 font-light">
+                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 mb-4 font-light min-h-[3.75rem]">
                       {vlog.description}
                     </p>
 

@@ -363,7 +363,6 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['YogaTips', 'Biomechanics', 'FormCheck'],
     date: 'Yesterday',
     reelUrl: 'https://www.instagram.com/reel/C8qLd95M6P1/',
-    videoUrl: 'https://www.youtube.com/embed/sTANio_2E0Q?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -382,7 +381,6 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['Breathwork', 'AnxietyRelief', 'SomaticHealing'],
     date: '3 days ago',
     reelUrl: 'https://www.instagram.com/reel/C7pKd89x2Z9/',
-    videoUrl: 'https://www.youtube.com/embed/inpok4MKVLM?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -401,7 +399,6 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['WhatIEat', 'HolisticNutrition', 'CleanEating'],
     date: '5 days ago',
     reelUrl: 'https://www.instagram.com/reel/C6oLk11z8X4/',
-    videoUrl: 'https://www.youtube.com/embed/4pKly2JojMw?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=600&q=80',
   },
   {
@@ -420,7 +417,6 @@ export const INSTAGRAM_REELS: InstagramReel[] = [
     tags: ['MorningRoutine', 'SpineHealth', 'Mobility'],
     date: '1 week ago',
     reelUrl: 'https://www.instagram.com/reel/C5mLp92M4Q8/',
-    videoUrl: 'https://www.youtube.com/embed/COp7BR_Dvps?autoplay=1&controls=1&rel=0&modestbranding=1',
     thumbnailUrl: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=600&q=80',
   },
 ];
