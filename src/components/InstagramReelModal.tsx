@@ -6,15 +6,13 @@ import {
   Heart,
   MessageCircle,
   Bookmark,
-  Volume2,
   VolumeX,
   Play,
-  Pause,
   Music,
   ExternalLink,
   Sparkles,
   Share2,
-  Info,
+  AlertCircle,
 } from 'lucide-react';
 import { InstagramIcon } from './Icons';
 import { resolveReelStream } from '../lib/videoParser';
@@ -29,7 +27,6 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
   reel,
   onClose,
 }) => {
-  const [viewMode, setViewMode] = useState<'player' | 'embed'>('embed');
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
@@ -52,7 +49,6 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
       setIsPlaying(true);
       setIsMuted(true);
       setProgress(0);
-      setViewMode('embed');
     }
   }, [reel]);
 
@@ -126,8 +122,8 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
 
   if (!reel) return null;
 
-  // Resolve guaranteed playable stream (avoids redirecting to Instagram on play)
-  const resolved = resolveReelStream(reel.videoUrl, reel.reelUrl, reel.id);
+  // Resolve accurate media source without fake YouTube fallbacks
+  const resolved = resolveReelStream(reel.videoUrl, reel.reelUrl);
 
   const nativeInstagramUrl =
     reel.reelUrl ||
@@ -144,10 +140,10 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 20 }}
         transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-        className="relative w-full max-w-[390px] sm:max-w-[430px] h-[88vh] max-h-[820px] rounded-[2.5rem] bg-[#0E0A1D] text-white overflow-hidden border border-purple-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col justify-between select-none"
+        className="relative w-full max-w-[390px] sm:max-w-[440px] h-[90vh] max-h-[840px] rounded-[2.5rem] bg-[#0E0A1D] text-white overflow-hidden border border-purple-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col justify-between select-none"
       >
-        {/* Top Floating Header with View Mode & Actions */}
-        <div className="absolute top-0 inset-x-0 z-40 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-auto">
+        {/* Top Floating Header with Actions */}
+        <div className="absolute top-0 inset-x-0 z-40 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-auto">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white p-1.5 shadow-md">
               <InstagramIcon className="w-full h-full" />
@@ -163,45 +159,19 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* View Mode Toggle: In-App Player vs Official IG Embed */}
-            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full p-0.5 border border-white/10 text-[10px]">
-              <button
-                type="button"
-                onClick={() => setViewMode('player')}
-                className={`px-2.5 py-1 rounded-full font-semibold transition-all cursor-pointer ${
-                  viewMode === 'player'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-                title="Play directly on page without redirecting"
-              >
-                In-App
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('embed')}
-                className={`px-2.5 py-1 rounded-full font-semibold transition-all cursor-pointer ${
-                  viewMode === 'embed'
-                    ? 'bg-purple-600 text-white shadow-xs'
-                    : 'text-slate-300 hover:text-white'
-                }`}
-                title="View official Instagram embed card"
-              >
-                IG View
-              </button>
-            </div>
-
             {/* Direct Link to Open on Instagram */}
-            <a
-              href={nativeInstagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-purple-600 text-white border border-white/20 text-[10px] font-semibold transition-all backdrop-blur-md shadow-xs cursor-pointer"
-              title="Open and engage on official Instagram app"
-            >
-              <span>IG</span>
-              <ExternalLink className="w-3 h-3 opacity-80" />
-            </a>
+            {nativeInstagramUrl && (
+              <a
+                href={nativeInstagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-purple-600 text-white border border-white/20 text-[10px] font-semibold transition-all backdrop-blur-md shadow-xs cursor-pointer"
+                title="Open on official Instagram app"
+              >
+                <span>IG</span>
+                <ExternalLink className="w-3 h-3 opacity-80" />
+              </a>
+            )}
 
             {/* Close Button */}
             <button
@@ -216,37 +186,11 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
         </div>
 
         {/* =========================================================================
-            VIDEO STAGE: In-App Player (Inline Video) vs Official Instagram Embed
+            VIDEO STAGE: Source-Specific Rendering Matrix (Bug D Fix)
            ========================================================================= */}
         <div className="relative flex-grow w-full h-full bg-black overflow-hidden flex items-center justify-center">
-          {viewMode === 'embed' ? (
-            /* Official Instagram Embed powered by embed.js */
-            <div className="w-full h-full pt-16 pb-4 px-3 flex flex-col items-center justify-start overflow-y-auto bg-[#0B0914]">
-              <div className="w-full mb-2 px-2 py-1.5 rounded-xl bg-purple-950/40 border border-purple-500/20 text-[11px] text-purple-200 flex items-center gap-1.5">
-                <Info className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                <span>
-                  Meta web embeds show a preview card. Switch to <strong>In-App</strong> to watch inline!
-                </span>
-              </div>
-              <InstagramEmbed
-                url={reel.reelUrl || 'https://www.instagram.com/reel/C8qLd95M6P1/'}
-                caption={reel.caption}
-                creatorHandle={reel.creatorHandle}
-              />
-            </div>
-          ) : resolved.isYouTube ? (
-            /* YouTube Vertical Stream - Plays directly in app without redirecting */
-            <div className="relative w-full h-full bg-black flex items-center justify-center">
-              <iframe
-                src={resolved.streamUrl}
-                title={reel.poseName}
-                className="w-full h-full border-none pointer-events-auto"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              />
-            </div>
-          ) : (
-            /* Direct HTML5 Video Player */
+          {resolved.type === 'direct_video' ? (
+            /* 1. Direct MP4 / WebM File Video Player */
             <div
               onClick={togglePlay}
               className="relative w-full h-full bg-black flex items-center justify-center cursor-pointer"
@@ -283,10 +227,50 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
                 </div>
               )}
             </div>
+          ) : resolved.type === 'youtube' ? (
+            /* 2. YouTube Vertical Embed Stream */
+            <div className="relative w-full h-full bg-black flex items-center justify-center pt-14 pb-4">
+              <iframe
+                src={resolved.streamUrl}
+                title={reel.poseName}
+                className="w-full h-full border-none pointer-events-auto"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          ) : resolved.type === 'instagram' ? (
+            /* 3. Official Instagram Embed */
+            <div className="w-full h-full pt-16 pb-4 px-3 flex flex-col items-center justify-start overflow-y-auto bg-[#0B0914] no-scrollbar">
+              <InstagramEmbed
+                url={reel.reelUrl || reel.videoUrl || ''}
+                caption={reel.caption}
+                creatorHandle={reel.creatorHandle}
+              />
+            </div>
+          ) : (
+            /* 4. Missing or Unavailable Reel Source State */
+            <div className="p-6 text-center text-xs text-slate-300 flex flex-col items-center justify-center gap-3 h-full">
+              <AlertCircle className="w-10 h-10 text-purple-400 mb-1" />
+              <p className="font-semibold text-white text-sm">Reel Content Unavailable</p>
+              <p className="text-slate-400 text-xs max-w-xs leading-relaxed">
+                This Instagram Reel link could not be loaded directly. You can view the post on Instagram.
+              </p>
+              {nativeInstagramUrl && (
+                <a
+                  href={nativeInstagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full btn-silver-glass text-xs font-semibold"
+                >
+                  <span>Open on Instagram</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
           )}
 
-          {/* Vignette Overlay for Crisp Readability (in Player mode) */}
-          {viewMode === 'player' && (
+          {/* Vignette Overlay for Readability (in Direct Video mode) */}
+          {resolved.type === 'direct_video' && (
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 pointer-events-none z-20" />
           )}
 
@@ -308,8 +292,8 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Floating Right Action Rail (Likes, Comments, Share, Save) */}
-          {viewMode === 'player' && (
+          {/* Floating Right Action Rail (Likes, Comments, Share, Save) for Direct Video */}
+          {resolved.type === 'direct_video' && (
             <div
               onClick={(e) => e.stopPropagation()}
               className="absolute right-3 sm:right-4 bottom-24 z-30 flex flex-col items-center gap-4.5 pointer-events-auto"
@@ -376,8 +360,8 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
             </div>
           )}
 
-          {/* Bottom Overlay: Creator, Pose Title, Caption & Audio */}
-          {viewMode === 'player' && (
+          {/* Bottom Overlay: Creator, Pose Title, Caption & Audio for Direct Video */}
+          {resolved.type === 'direct_video' && (
             <div
               onClick={(e) => e.stopPropagation()}
               className="absolute bottom-0 inset-x-0 z-30 p-5 pt-8 bg-gradient-to-t from-black via-black/85 to-transparent pr-18 pointer-events-auto"
@@ -426,8 +410,8 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
             </div>
           )}
 
-          {/* Video Progress Bar */}
-          {viewMode === 'player' && progress > 0 && (
+          {/* Video Progress Bar for Direct Video */}
+          {resolved.type === 'direct_video' && progress > 0 && (
             <div className="absolute bottom-0 inset-x-0 h-1 bg-white/20 z-40">
               <div
                 className="h-full bg-gradient-to-r from-purple-500 to-indigo-400 transition-all duration-150"

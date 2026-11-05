@@ -1928,13 +1928,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               />
                             </div>
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Instagram Reel Link (Fallback)</label>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Instagram Reel URL *</label>
                               <input
                                 type="url"
                                 required
                                 value={newReelUrl}
                                 onChange={(e) => setNewReelUrl(e.target.value)}
-                                placeholder="https://www.instagram.com/reel/C-xyz123/"
+                                placeholder="https://www.instagram.com/reel/C8qLd95M6P1/"
                                 className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
                               />
                             </div>
@@ -1943,13 +1943,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-xs uppercase text-purple-300 font-semibold mb-1">
-                                Direct Video Stream (MP4/WebM for Inline Play)
+                                Optional Direct Video File URL (MP4 / WebM)
                               </label>
                               <input
                                 type="text"
                                 value={newReelVideoUrl}
                                 onChange={(e) => setNewReelVideoUrl(e.target.value)}
-                                placeholder="https://.../video.mp4 (Plays directly in browser!)"
+                                placeholder="https://domain.com/video.mp4 (Optional direct file)"
                                 className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
                               />
                             </div>
