@@ -140,7 +140,7 @@ export function App() {
     <div className="relative min-h-screen bg-[#0B0914] text-[#F8FAFC] flex flex-col font-sans selection:bg-purple-600/30 selection:text-purple-200">
       
       {/* Global Toast Notification Provider */}
-      <Toaster position="top-right" richColors theme="dark" />
+      <Toaster position="bottom-right" richColors theme="dark" />
 
       {/* Dark Ambient Canvas Background with Flying Stars & Subtle Midnight Lotus Spheres */}
       <DynamicIrisBackground />

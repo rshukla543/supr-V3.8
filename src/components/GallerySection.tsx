@@ -175,75 +175,76 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
         </div>
 
         {/* 3D Coverflow Carousel Stage with Silky Drag Gestures */}
-        <div className="relative h-[470px] sm:h-[530px] w-full overflow-hidden select-none [perspective:1400px]">
-          <motion.div
-            className="w-full h-full cursor-grab active:cursor-grabbing"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.12}
-            onDragStart={() => {
-              isDragging.current = true;
-            }}
-            onDragEnd={(_, info) => {
-              setTimeout(() => {
-                isDragging.current = false;
-              }, 100);
-
-              if (info.offset.x < -35 || info.velocity.x < -200) {
+        <div
+          className="relative h-[470px] sm:h-[530px] w-full overflow-hidden select-none [perspective:1400px] cursor-grab active:cursor-grabbing"
+          onPointerDown={(e) => {
+            const startX = e.clientX;
+            let currentOffset = 0;
+            const onPointerMove = (moveEvt: PointerEvent) => {
+              currentOffset = moveEvt.clientX - startX;
+            };
+            const onPointerUp = () => {
+              window.removeEventListener('pointermove', onPointerMove);
+              window.removeEventListener('pointerup', onPointerUp);
+              if (currentOffset < -40) {
                 handleNext();
-              } else if (info.offset.x > 35 || info.velocity.x > 200) {
+              } else if (currentOffset > 40) {
                 handlePrev();
               }
-            }}
-          >
-            {filteredImages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-2">
-                <ImageIcon className="w-8 h-8 text-purple-400/50" />
-                <span>No images in this folder yet.</span>
-              </div>
-            ) : (
-              <div className="relative w-full h-full">
-                {filteredImages.map((img, idx) => {
-                  const offset = idx - safeActiveIdx;
-                  const isCenter = offset === 0;
+            };
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+          }}
+        >
+          {filteredImages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-2">
+              <ImageIcon className="w-8 h-8 text-purple-400/50" />
+              <span>No images in this folder yet.</span>
+            </div>
+          ) : (
+            <div className="relative w-full h-full">
+              {filteredImages.map((img, idx) => {
+                const offset = idx - safeActiveIdx;
+                const isCenter = offset === 0;
 
-                  // Render window of 4 slides on each side
-                  if (Math.abs(offset) > 4) return null;
+                // Render window of 3 slides on each side
+                if (Math.abs(offset) > 3) return null;
 
-                  const xTranslation = offset * slideSpacing;
-                  const scale = isCenter ? 1.05 : Math.max(0.72, 1 - Math.abs(offset) * 0.12);
-                  const opacity = isCenter ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.22);
-                  const rotateY = offset * -14;
-                  const zIndex = 40 - Math.abs(offset);
+                const xTranslation = offset * slideSpacing;
+                const scale = isCenter ? 1.05 : Math.max(0.72, 1 - Math.abs(offset) * 0.12);
+                const opacity = isCenter ? 1 : Math.max(0.35, 1 - Math.abs(offset) * 0.22);
+                const rotateY = offset * -14;
+                const zIndex = 40 - Math.abs(offset);
 
-                  return (
-                    <motion.div
-                      key={img.id}
-                      className="absolute top-1/2 left-1/2 w-72 sm:w-84 aspect-[4/5] rounded-3xl overflow-hidden pointer-events-auto"
-                      style={{
-                        zIndex,
-                      }}
-                      animate={{
-                        x: `calc(-50% + ${xTranslation}px)`,
-                        y: '-50%',
-                        scale,
-                        opacity,
-                        rotateY,
-                      }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: 160,
-                        damping: 20,
-                      }}
-                      onClick={() => {
-                        if (isDragging.current) return;
-                        if (isCenter) {
-                          setLightboxImage(img);
-                        } else {
-                          setActiveIdx(idx);
-                        }
-                      }}
-                    >
+                return (
+                  <motion.div
+                    key={img.id}
+                    className="absolute top-1/2 left-1/2 w-72 sm:w-84 aspect-[4/5] rounded-3xl overflow-hidden pointer-events-auto"
+                    style={{
+                      zIndex: isCenter ? 50 : 20 - Math.abs(offset),
+                      pointerEvents: isCenter ? 'auto' : 'auto',
+                    }}
+                    animate={{
+                      x: `calc(-50% + ${xTranslation}px)`,
+                      y: '-50%',
+                      scale,
+                      opacity,
+                      rotateY,
+                    }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 240,
+                      damping: 26,
+                      mass: 0.8,
+                    }}
+                    onClick={() => {
+                      if (isCenter) {
+                        setLightboxImage(img);
+                      } else {
+                        setActiveIdx(idx);
+                      }
+                    }}
+                  >
                       <div
                         onContextMenu={(e) => e.preventDefault()}
                         className={`relative w-full h-full rounded-3xl overflow-hidden bg-[#130E24] p-5 flex flex-col justify-between transition-all duration-300 select-none ${
@@ -293,7 +294,6 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ images }) => {
                 })}
               </div>
             )}
-          </motion.div>
         </div>
 
         {/* Sleek Dynamic Pagination Dots (Max 6 Dots Window to prevent endless dots) */}

@@ -1004,8 +1004,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
 
                     {/* Cutout Portrait Upload Box */}
-                    <div className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 shadow-lg">
-                      <div className="flex items-center justify-between mb-3">
+                    <div className="p-6 rounded-2xl bg-[#140E26]/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] space-y-4">
+                      <div className="flex items-center justify-between mb-1">
                         <label className="text-xs uppercase font-bold tracking-wider text-purple-300 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-purple-400" />
                           <span>Hero Cutout Portrait (Transparent PNG or High-Res Photo)</span>
@@ -1014,7 +1014,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <button
                             type="button"
                             onClick={() => setHeroPortraitUrl('')}
-                            className="text-xs text-rose-400 hover:text-rose-300 transition-colors"
+                            className="text-xs text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
                           >
                             Reset to Default Portrait
                           </button>
@@ -1023,14 +1023,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                         <div className="md:col-span-2 space-y-3">
-                          <p className="text-xs text-slate-300 leading-relaxed">
+                          <p className="text-xs text-slate-300/80 leading-relaxed">
                             Upload a high-resolution portrait or cutout image. It is hosted directly on Supabase Storage (`site-assets/hero`) and rendered inside the organic glassmorphic hero frame.
                           </p>
 
                           <div className="flex flex-wrap items-center gap-3">
-                            <label className="px-4 py-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors">
-                              <Upload className="w-4 h-4" />
-                              <span>{isUploadingPortrait ? 'Uploading to Storage...' : 'Upload Cutout Portrait'}</span>
+                            <label className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all shadow-md hover:shadow-violet-500/25">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{isUploadingPortrait ? 'Uploading to Supabase...' : 'Upload Portrait File'}</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1043,8 +1043,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               type="text"
                               value={heroPortraitUrl}
                               onChange={(e) => setHeroPortraitUrl(e.target.value)}
-                              placeholder="Or paste Direct Image URL"
-                              className="flex-1 min-w-[200px] px-3.5 py-2.5 rounded-xl bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                              placeholder="Or paste Direct Supabase Public Image URL"
+                              className="flex-1 min-w-[220px] px-3.5 py-2.5 rounded-xl bg-[#090615] border border-white/10 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                             />
                           </div>
                         </div>
