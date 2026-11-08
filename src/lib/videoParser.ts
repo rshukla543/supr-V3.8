@@ -1,3 +1,4 @@
+import { parseInstagramUrl } from './instagram';
 /**
  * Video & Social Media Media Source Parser Utility
  * Handles YouTube, Instagram, and Direct Video File classification cleanly without fake fallbacks.
@@ -20,13 +21,7 @@ export function isYouTubeVideoUrl(url?: string): boolean {
  * Checks if a URL points to an Instagram post, reel, or shortcode
  */
 export function isInstagramUrl(url?: string): boolean {
-  if (!url || typeof url !== 'string') return false;
-  const trimmed = url.trim().toLowerCase();
-  return (
-    trimmed.includes('instagram.com') ||
-    trimmed.includes('instagr.am') ||
-    /^[A-Za-z0-9_-]{5,30}$/.test(url.trim())
-  );
+  return parseInstagramUrl(url).ok;
 }
 
 /**
@@ -104,19 +99,8 @@ export function getYouTubeThumbnailUrl(url?: string): string | null {
  * Converts Instagram Reel or Post URLs to proper embed iframe format
  */
 export function parseInstagramEmbedUrl(url?: string): string {
-  if (!url || typeof url !== 'string') return '';
-  const trimmed = url.trim();
-
-  const match = trimmed.match(/(?:reel|p|tv)\/([A-Za-z0-9_-]+)/i);
-  if (match && match[1]) {
-    return `https://www.instagram.com/reel/${match[1]}/embed/`;
-  }
-
-  if (/^[A-Za-z0-9_-]{5,30}$/.test(trimmed)) {
-    return `https://www.instagram.com/reel/${trimmed}/embed/`;
-  }
-
-  return trimmed;
+  const parsed = parseInstagramUrl(url);
+  return parsed.ok ? parsed.embedUrl : '';
 }
 
 export type ReelMediaSourceType = 'instagram' | 'youtube' | 'direct_video' | 'none';
