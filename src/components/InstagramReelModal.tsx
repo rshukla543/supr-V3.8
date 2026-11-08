@@ -15,7 +15,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { InstagramIcon } from './Icons';
-import { resolveReelStream } from '../lib/videoParser';
 import { InstagramEmbed } from './InstagramEmbed';
 
 interface InstagramReelModalProps {
@@ -122,8 +121,6 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
 
   if (!reel) return null;
 
-  // Resolve accurate media source without fake YouTube fallbacks
-  const resolved = resolveReelStream(reel.videoUrl, reel.reelUrl);
 
   const nativeInstagramUrl =
     reel.reelUrl ||
@@ -190,11 +187,7 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
            ========================================================================= */}
         <div className="relative flex-grow w-full h-full bg-[#0B0914] overflow-hidden flex items-center justify-center pt-16 pb-4 px-3">
           <div className="w-full h-full flex flex-col items-center justify-start overflow-y-auto no-scrollbar">
-            <InstagramEmbed
-              url={reel.reelUrl || 'https://www.instagram.com/reel/C8qLd95M6P1/'}
-              caption={reel.caption}
-              creatorHandle={reel.creatorHandle}
-            />
+            <InstagramEmbed key={reel.id} url={reel.reelUrl} />
           </div>
         </div>
       </motion.div>
