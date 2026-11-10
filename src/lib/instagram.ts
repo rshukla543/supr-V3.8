@@ -1,8 +1,10 @@
 /**
- * Strict Instagram URL parsing.
- * - Never substitutes a default/placeholder Reel.
- * - Never treats a bare string as a shortcode.
- * - Returns a reason the admin can act on.
+ * Strict Instagram URL & Embed Code parsing.
+ * - Supports direct URLs: /reel/CODE, /p/CODE, /tv/CODE, /username/reel/CODE
+ * - Supports pasted official Instagram Embed codes (<blockquote class="instagram-media" ...>)
+ * - Extracts canonical permalinks without tracking/query params
+ * - Never substitutes a default/placeholder Reel
+ * - Returns a clear reason when input is invalid
  */
 
 export type ParsedInstagramUrl =
@@ -12,18 +14,59 @@ export type ParsedInstagramUrl =
       kind: 'reel' | 'p';
       permalink: string;
       embedUrl: string;
+      sourceType: 'url' | 'embed_code';
     }
   | { ok: false; reason: string };
 
-const SHORTCODE_RE = /^[A-Za-z0-9_-]{5,30}$/;
+const SHORTCODE_RE = /^[A-Za-z0-9_-]{5,35}$/;
 const POST_SEGMENTS = new Set(['reel', 'reels', 'p', 'tv']);
+
+/**
+ * Safely extracts an Instagram URL from a pasted HTML embed code block
+ */
+function extractUrlFromEmbedCode(html: string): string | null {
+  // 1. Look for data-instgrm-permalink="..." or '...'
+  const permalinkMatch = html.match(/data-instgrm-permalink\s*=\s*["']([^"']+)["']/i);
+  if (permalinkMatch && permalinkMatch[1]) {
+    return permalinkMatch[1].replace(/&amp;/g, '&');
+  }
+
+  // 2. Look for href="https://www.instagram.com/reel/..." or /p/...
+  const hrefMatch = html.match(/href\s*=\s*["'](https?:\/\/(?:www\.)?instagram\.com\/(?:reel|reels|p|tv)\/[^"'\s\?]+)/i);
+  if (hrefMatch && hrefMatch[1]) {
+    return hrefMatch[1];
+  }
+
+  // 3. Fallback: Any instagram link inside anchor tag
+  const generalAnchorMatch = html.match(/<a\s+[^>]*href\s*=\s*["']([^"']+)["']/i);
+  if (generalAnchorMatch && generalAnchorMatch[1]) {
+    return generalAnchorMatch[1].replace(/&amp;/g, '&');
+  }
+
+  return null;
+}
 
 export function parseInstagramUrl(input?: string | null): ParsedInstagramUrl {
   if (!input || typeof input !== 'string' || !input.trim()) {
-    return { ok: false, reason: 'Paste an Instagram Reel link.' };
+    return { ok: false, reason: 'Paste an Instagram Reel link or embed snippet.' };
   }
 
-  const raw = input.trim();
+  let raw = input.trim();
+  let isEmbedSnippet = false;
+
+  // Check if user pasted an embed HTML block (<blockquote ...> or <iframe ...>)
+  if (raw.includes('<') && (raw.includes('instagram-media') || raw.includes('instagram.com') || raw.includes('blockquote'))) {
+    const extracted = extractUrlFromEmbedCode(raw);
+    if (!extracted) {
+      return {
+        ok: false,
+        reason: 'Could not find a valid Instagram permalink in the pasted embed code snippet.',
+      };
+    }
+    raw = extracted;
+    isEmbedSnippet = true;
+  }
+
   let url: URL;
   try {
     url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
@@ -42,14 +85,14 @@ export function parseInstagramUrl(input?: string | null): ParsedInstagramUrl {
     return {
       ok: false,
       reason:
-        'Instagram "share" links cannot be embedded. Open the Reel and copy its normal link (…/reel/CODE/).',
+        'Instagram "share" links cannot be embedded directly. Open the Reel in your browser and copy its normal link (…/reel/CODE/).',
     };
   }
 
-  // Supports /reel/CODE, /p/CODE, /tv/CODE and /username/reel/CODE
+  // Supports /reel/CODE, /p/CODE, /tv/CODE, and /username/reel/CODE
   const idx = POST_SEGMENTS.has(parts[0]?.toLowerCase())
     ? 0
-    : POST_SEGMENTS.has(parts[1]?.toLowerCase())
+    : parts[1] && POST_SEGMENTS.has(parts[1]?.toLowerCase())
     ? 1
     : -1;
 
@@ -63,9 +106,17 @@ export function parseInstagramUrl(input?: string | null): ParsedInstagramUrl {
 
   const kind: 'reel' | 'p' = parts[idx].toLowerCase() === 'p' ? 'p' : 'reel';
   const permalink = `https://www.instagram.com/${kind}/${code}/`;
-  return { ok: true, shortcode: code, kind, permalink, embedUrl: `${permalink}embed/` };
+  return {
+    ok: true,
+    shortcode: code,
+    kind,
+    permalink,
+    embedUrl: `${permalink}embed/`,
+    sourceType: isEmbedSnippet ? 'embed_code' : 'url',
+  };
 }
 
 export function isInstagramUrl(url?: string | null): boolean {
   return parseInstagramUrl(url).ok;
 }
+

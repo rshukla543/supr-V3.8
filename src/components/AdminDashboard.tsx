@@ -45,8 +45,13 @@ import {
   ExternalLink,
   Copy,
   ChevronRight,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { InstagramIcon, YoutubeIcon } from './Icons';
+import { parseInstagramUrl } from '../lib/instagram';
+import { InstagramEmbed } from './InstagramEmbed';
+import { InstagramReelModal } from './InstagramReelModal';
 import {
   upsertVideo,
   deleteVideo,
@@ -103,6 +108,7 @@ type AdminSectionTab =
   | 'marquee'
   | 'gallery'
   | 'vault'
+  | 'reels'
   | 'services'
   | 'testimonials'
   | 'intentions'
@@ -204,11 +210,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newReelPose, setNewReelPose] = useState('');
   const [newReelCaption, setNewReelCaption] = useState('');
   const [newReelAudio, setNewReelAudio] = useState('♫ Original Audio • Supriya');
-  const [newReelLikes, setNewReelLikes] = useState('50.0K');
+  const [newReelLikes, setNewReelLikes] = useState('48.5K');
   const [newReelDuration, setNewReelDuration] = useState('0:45');
-  const [newReelUrl, setNewReelUrl] = useState('https://www.instagram.com/reel/C-xyz123/');
+  const [newReelUrl, setNewReelUrl] = useState('');
   const [newReelVideoUrl, setNewReelVideoUrl] = useState('');
   const [newReelThumbnailUrl, setNewReelThumbnailUrl] = useState('');
+  const [adminPreviewReel, setAdminPreviewReel] = useState<InstagramReel | null>(null);
+  const [showAdminEmbedTest, setShowAdminEmbedTest] = useState(false);
 
   // 9. Service Form State
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
@@ -692,32 +700,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveReel = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newReelUrl.trim()) {
+      toast.error('Please enter an Instagram Reel link or paste embed code.');
+      return;
+    }
+
+    const parsed = parseInstagramUrl(newReelUrl);
+    if (!parsed.ok) {
+      toast.error(parsed.reason);
+      return;
+    }
+
     const reelToSave: InstagramReel = {
       id: editingReel ? editingReel.id : `reel-${Date.now()}`,
-      caption: newReelCaption || 'Bite-sized somatic yoga drill & movement alignment.',
+      caption: newReelCaption.trim() || 'Bite-sized somatic yoga drill & movement alignment.',
       creatorHandle: 'supriya_9508',
-      audioTrack: newReelAudio || '♫ Original Audio • Supriya',
-      likesCount: newReelLikes || '48.5K',
+      audioTrack: newReelAudio.trim() || '♫ Original Audio • Supriya',
+      likesCount: newReelLikes.trim() || '48.5K',
       commentsCount: editingReel?.commentsCount || '500',
       sharesCount: editingReel?.sharesCount || '2.5K',
       viewsCount: editingReel?.viewsCount || '150K',
-      duration: newReelDuration || '0:45',
+      duration: newReelDuration.trim() || '0:45',
       gradient: editingReel?.gradient || 'from-purple-950 via-slate-900 to-black',
       coverAccent: editingReel?.coverAccent || '#A855F7',
-      poseName: newReelPose || 'Somatic Alignment',
+      poseName: newReelPose.trim() || `Asana Reel (${parsed.shortcode})`,
       tags: editingReel?.tags || ['YogaTips', 'Movement'],
       date: editingReel?.date || 'Recent',
-      reelUrl: newReelUrl || 'https://www.instagram.com/reel/C8qLd95M6P1/',
-      thumbnailUrl: newReelThumbnailUrl || editingReel?.thumbnailUrl || 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80',
+      reelUrl: parsed.permalink,
+      thumbnailUrl: newReelThumbnailUrl.trim() || editingReel?.thumbnailUrl || '',
     };
 
     await upsertReel(reelToSave);
     setEditingReel(null);
     setNewReelPose('');
     setNewReelCaption('');
-    setNewReelUrl('https://www.instagram.com/reel/C8qLd95M6P1/');
+    setNewReelUrl('');
     setNewReelVideoUrl('');
     setNewReelThumbnailUrl('');
+    setShowAdminEmbedTest(false);
     onRefreshData();
     showNotification('Instagram Reel saved & synced to Supabase database!');
   };
@@ -755,19 +775,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     { id: 'settings', label: '2. Site Settings & Logo', icon: Settings, badge: 'Global Emblem' },
     { id: 'marquee', label: '3. Brand Sponsors', icon: Layers, badge: 'Marquee' },
     { id: 'gallery', label: '4. Gallery Carousel', icon: ImageIcon, count: gallery.length },
-    { id: 'vault', label: '5. Content Vault', icon: Film, count: videos.length + reels.length },
-    { id: 'services', label: '6. Services ("Work With Me")', icon: Briefcase, count: services.length },
+    { id: 'vault', label: '5. YouTube Masterclasses', icon: YoutubeIcon, count: videos.length },
+    { id: 'reels', label: '6. Instagram Reels', icon: InstagramIcon, count: reels.length, badge: 'Direct Embed' },
+    { id: 'services', label: '7. Services ("Work With Me")', icon: Briefcase, count: services.length },
     {
       id: 'testimonials',
-      label: '7. Testimonials',
+      label: '8. Testimonials',
       icon: MessageSquareHeart,
       count: testimonials.length,
       pendingBadge: pendingTestimonialsCount,
     },
-    { id: 'intentions', label: '8. Daily Intention', icon: Heart, badge: '3.0s Hold' },
-    { id: 'waitlist', label: '9. Waitlist Leads', icon: Users, count: waitlist.length },
-    { id: 'subscribers', label: '10. Subscribers', icon: Mail, count: subscribers.length },
-    { id: 'ai-strategist', label: '11. AI Strategist', icon: Sparkles, badge: 'Gemini 3.8' },
+    { id: 'intentions', label: '9. Daily Intention', icon: Heart, badge: '3.0s Hold' },
+    { id: 'waitlist', label: '10. Waitlist Leads', icon: Users, count: waitlist.length },
+    { id: 'subscribers', label: '11. Subscribers', icon: Mail, count: subscribers.length },
+    { id: 'ai-strategist', label: '12. AI Strategist', icon: Sparkles, badge: 'Gemini 3.8' },
   ];
 
   if (!isOpen) return null;
@@ -1689,46 +1710,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
 
                 {/* -------------------------------------------------------- */}
-                {/* 5. CONTENT VAULT (VIDEOS & REELS) */}
+                {/* 5. YOUTUBE MASTERCLASSES */}
                 {/* -------------------------------------------------------- */}
                 {activeTab === 'vault' && (
                   <div className="space-y-6 max-w-4xl">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-500/15 pb-4">
                       <div>
-                        <h4 className="text-lg font-serif font-semibold text-white">Content Vault (YouTube & Reels)</h4>
+                        <h4 className="text-lg font-serif font-semibold text-white">YouTube Masterclasses & Vlogs</h4>
                         <p className="text-xs text-purple-300/70">
-                          Directly update video embed URLs, durations, views, and upload custom thumbnails or add Instagram Reels.
+                          Directly update video embed URLs, durations, views, and upload custom thumbnails.
                         </p>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setVaultSubtab('videos')}
-                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                            vaultSubtab === 'videos' ? 'bg-purple-600 text-white shadow-md' : 'bg-white/5 text-slate-300 hover:text-white'
-                          }`}
-                        >
-                          <YoutubeIcon className="w-3.5 h-3.5" />
-                          <span>YouTube ({videos.length})</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setVaultSubtab('reels')}
-                          className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                            vaultSubtab === 'reels' ? 'bg-purple-600 text-white shadow-md' : 'bg-white/5 text-slate-300 hover:text-white'
-                          }`}
-                        >
-                          <InstagramIcon className="w-3.5 h-3.5" />
-                          <span>Reels ({reels.length})</span>
-                        </button>
+                        <span className="px-3 py-1 rounded-full bg-red-950/60 border border-red-500/30 text-red-200 text-xs font-semibold flex items-center gap-1.5">
+                          <YoutubeIcon className="w-3.5 h-3.5 text-red-400" />
+                          <span>{videos.length} Videos</span>
+                        </span>
                       </div>
                     </div>
 
-                    {vaultSubtab === 'videos' ? (
-                      <>
-                        {/* Video Form */}
-                        <form onSubmit={handleSaveVideo} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
+                    {/* Video Form */}
+                    <form onSubmit={handleSaveVideo} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
                           <h5 className="text-sm font-semibold text-white flex items-center gap-2">
                             <Film className="w-4 h-4 text-purple-400" />
                             <span>{editingVideo ? `Editing: ${editingVideo.title}` : 'New YouTube Video / Masterclass'}</span>
@@ -1906,66 +1909,149 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           ))}
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Instagram Reels Form */}
-                        <form onSubmit={handleSaveReel} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4">
-                          <h5 className="text-sm font-semibold text-white flex items-center gap-2">
-                            <InstagramIcon className="w-4 h-4 text-purple-400" />
-                            <span>{editingReel ? `Editing Reel: ${editingReel.poseName}` : 'New Instagram Reel'}</span>
-                          </h5>
+                    </div>
+                )}
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Pose / Drill Title *</label>
-                              <input
-                                type="text"
-                                required
-                                value={newReelPose}
-                                onChange={(e) => setNewReelPose(e.target.value)}
-                                placeholder="e.g. Somatic Hip Opener"
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs uppercase text-purple-300 font-semibold mb-1">Instagram Reel URL (e.g. /reel/C8qLd95M6P1/) *</label>
-                              <input
-                                type="url"
-                                required
-                                value={newReelUrl}
-                                onChange={(e) => setNewReelUrl(e.target.value)}
-                                placeholder="https://www.instagram.com/reel/C8qLd95M6P1/"
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
-                              />
-                            </div>
+                {/* -------------------------------------------------------- */}
+                {/* 6. INSTAGRAM REELS (DEDICATED TOP-LEVEL CMS SECTION) */}
+                {/* -------------------------------------------------------- */}
+                {activeTab === 'reels' && (() => {
+                  const parsedInput = newReelUrl.trim() ? parseInstagramUrl(newReelUrl) : null;
+                  return (
+                    <div className="space-y-6 max-w-4xl">
+                      {/* Section Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-500/15 pb-4">
+                        <div>
+                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 text-purple-300 text-[11px] font-semibold mb-1">
+                            <InstagramIcon className="w-3 h-3 text-pink-400" />
+                            <span>Meta Official Embed Integration</span>
                           </div>
+                          <h4 className="text-lg font-serif font-semibold text-white">Instagram Reels Management</h4>
+                          <p className="text-xs text-purple-300/70">
+                            Embed public Instagram Reels directly into your website. Zero video hosting costs, direct in-browser playback.
+                          </p>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-200 text-xs font-semibold flex items-center gap-1.5">
+                            <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                            <span>{reels.length} Active Reels</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Simplified Reel Creation Form */}
+                      <form onSubmit={handleSaveReel} className="p-5 rounded-2xl bg-[#140E26] border border-purple-500/20 space-y-4 shadow-xl">
+                        <div className="flex items-center justify-between">
+                          <h5 className="text-sm font-semibold text-white flex items-center gap-2">
+                            <InstagramIcon className="w-4 h-4 text-pink-400" />
+                            <span>{editingReel ? `Editing Reel: ${editingReel.poseName}` : 'Add New Instagram Reel'}</span>
+                          </h5>
+                          {editingReel && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingReel(null);
+                                setNewReelPose('');
+                                setNewReelCaption('');
+                                setNewReelUrl('');
+                                setNewReelThumbnailUrl('');
+                                setShowAdminEmbedTest(false);
+                              }}
+                              className="text-xs text-slate-400 hover:text-white"
+                            >
+                              Cancel Edit
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Primary Input: Method A (URL) or Method B (Embed Code) */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-xs font-semibold uppercase text-purple-200 tracking-wider">
+                              Instagram Reel URL or Pasted Embed Code *
+                            </label>
+                            <span className="text-[11px] text-slate-400">
+                              Method A (URL) or Method B (Embed Snippet)
+                            </span>
+                          </div>
+                          
+                          <textarea
+                            rows={3}
+                            required
+                            value={newReelUrl}
+                            onChange={(e) => setNewReelUrl(e.target.value)}
+                            placeholder="Paste link (https://www.instagram.com/reel/C8qLd95M6P1/) OR paste Instagram Embed HTML (<blockquote class='instagram-media'...>)..."
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-purple-500/30 text-xs text-white font-mono focus:border-purple-400 focus:outline-hidden"
+                          />
+
+                          {/* Live Validation Pill */}
+                          {newReelUrl.trim() && (
+                            <div className="mt-2">
+                              {parsedInput && parsedInput.ok ? (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-medium">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>
+                                    Valid Instagram {parsedInput.kind.toUpperCase()} (Shortcode:{' '}
+                                    <strong className="font-mono">{parsedInput.shortcode}</strong>) • Ready to Embed
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs font-medium">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                                  <span>{parsedInput ? parsedInput.reason : 'Invalid link format'}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Interactive In-Admin Embed Test Player */}
+                        {parsedInput && parsedInput.ok && (
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setShowAdminEmbedTest(!showAdminEmbedTest)}
+                              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/30 text-purple-200 text-xs font-semibold transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-purple-400" />
+                              <span>{showAdminEmbedTest ? 'Hide Live Embed Test' : 'Test Official Embed Player Here'}</span>
+                            </button>
+
+                            {showAdminEmbedTest && (
+                              <div className="mt-3 p-4 rounded-2xl bg-black/60 border border-purple-500/30 flex flex-col items-center">
+                                <span className="text-[11px] font-mono text-purple-300 mb-3 block">
+                                  Live Meta Embed Preview ({parsedInput.permalink})
+                                </span>
+                                <InstagramEmbed url={parsedInput.permalink} />
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Optional Metadata: Non-mandatory fields */}
+                        <div className="pt-2 border-t border-purple-500/10 space-y-4">
+                          <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block">
+                            Optional Details (Leave blank to use smart defaults)
+                          </span>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-xs uppercase text-slate-300 mb-1">
-                                Optional Custom Poster / Cover Image URL
+                                Pose / Drill Title (Optional)
                               </label>
                               <input
                                 type="text"
-                                value={newReelThumbnailUrl}
-                                onChange={(e) => setNewReelThumbnailUrl(e.target.value)}
-                                placeholder="https://images.unsplash.com/..."
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
+                                value={newReelPose}
+                                onChange={(e) => setNewReelPose(e.target.value)}
+                                placeholder="e.g. Somatic Hip Opener (or auto-named)"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
                               />
-                              {newReelThumbnailUrl && (
-                                <div className="mt-2 p-2 rounded-lg bg-black/40 border border-purple-500/30 flex items-center gap-2">
-                                  <img
-                                    src={newReelThumbnailUrl}
-                                    alt="Poster Preview"
-                                    className="w-8 h-12 rounded object-cover border border-purple-400/40 shrink-0"
-                                  />
-                                  <span className="text-[11px] text-purple-300 font-mono truncate">Cover Preview</span>
-                                </div>
-                              )}
                             </div>
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Audio Track / Theme</label>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">
+                                Audio Track / Theme (Optional)
+                              </label>
                               <input
                                 type="text"
                                 value={newReelAudio}
@@ -1976,9 +2062,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Likes Count</label>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Duration (Optional)</label>
+                              <input
+                                type="text"
+                                value={newReelDuration}
+                                onChange={(e) => setNewReelDuration(e.target.value)}
+                                placeholder="0:45"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">Likes Count (Optional)</label>
                               <input
                                 type="text"
                                 value={newReelLikes}
@@ -1988,20 +2084,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               />
                             </div>
                             <div>
-                              <label className="block text-xs uppercase text-slate-300 mb-1">Duration</label>
+                              <label className="block text-xs uppercase text-slate-300 mb-1">
+                                Custom Poster Image URL (Optional)
+                              </label>
                               <input
                                 type="text"
-                                value={newReelDuration}
-                                onChange={(e) => setNewReelDuration(e.target.value)}
-                                placeholder="0:45"
-                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white"
+                                value={newReelThumbnailUrl}
+                                onChange={(e) => setNewReelThumbnailUrl(e.target.value)}
+                                placeholder="Auto-branded gradient if left blank"
+                                className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white font-mono"
                               />
                             </div>
                           </div>
 
                           <div>
                             <div className="flex items-center justify-between mb-1">
-                              <label className="block text-xs uppercase text-slate-300">Caption / Micro-Adjustment Note</label>
+                              <label className="block text-xs uppercase text-slate-300">
+                                Caption / Somatic Cue (Optional)
+                              </label>
                               <button
                                 type="button"
                                 onClick={handleGenerateReelCaption}
@@ -2009,78 +2109,160 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-900/60 hover:bg-purple-800/80 border border-purple-400/30 text-purple-200 text-[11px] font-semibold transition-all cursor-pointer shadow-xs disabled:opacity-50"
                               >
                                 <Sparkles className="w-3 h-3 text-purple-400" />
-                                <span>{isGeneratingCaption ? 'Consulting Gemini...' : 'Suggest Hook (AI)'}</span>
+                                <span>{isGeneratingCaption ? 'Generating...' : 'Suggest Hook (AI)'}</span>
                               </button>
                             </div>
                             <textarea
                               rows={2}
                               value={newReelCaption}
                               onChange={(e) => setNewReelCaption(e.target.value)}
-                              placeholder="Key somatic cues for this reel..."
+                              placeholder="Key somatic cues or hook for this drill..."
                               className="w-full px-3 py-2 rounded-lg bg-black/40 border border-purple-500/20 text-xs text-white resize-none"
                             />
                           </div>
+                        </div>
 
+                        {/* Submit & Cancel Buttons */}
+                        <div className="flex items-center gap-3 pt-2">
                           <button
                             type="submit"
                             className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider btn-silver-glass cursor-pointer flex items-center gap-2"
                           >
                             <Save className="w-4 h-4" />
-                            <span>Save Reel to Supabase</span>
+                            <span>{editingReel ? 'Update Reel in Supabase' : 'Save Reel to Supabase'}</span>
                           </button>
-                        </form>
-
-                        {/* Reels List */}
-                        <div className="space-y-3">
-                          {reels.map((reel) => (
-                            <div key={reel.id} className="p-4 rounded-xl bg-[#140E26] border border-purple-500/15 flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-12 h-12 rounded-lg bg-purple-950/60 border border-purple-400/20 flex items-center justify-center text-purple-300 shrink-0">
-                                  <InstagramIcon className="w-6 h-6" />
-                                </div>
-                                <div className="truncate">
-                                  <h5 className="text-sm font-semibold text-white truncate">{reel.poseName}</h5>
-                                  <p className="text-xs text-slate-400 truncate">{reel.caption}</p>
-                                  <span className="text-[11px] text-purple-300 font-mono">
-                                    {reel.likesCount} likes • {reel.duration} • @{reel.creatorHandle}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingReel(reel);
-                                    setNewReelPose(reel.poseName);
-                                    setNewReelCaption(reel.caption);
-                                    setNewReelLikes(reel.likesCount);
-                                    setNewReelDuration(reel.duration);
-                                    setNewReelAudio(reel.audioTrack);
-                                    setNewReelUrl(reel.reelUrl || '');
-                                    setNewReelVideoUrl(reel.videoUrl || '');
-                                    setNewReelThumbnailUrl(reel.thumbnailUrl || '');
-                                  }}
-                                  className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
-                                  title="Edit Reel"
-                                >
-                                  <Edit2 className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteReel(reel.id)}
-                                  className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
-                                  title="Delete Reel"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                          {editingReel && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingReel(null);
+                                setNewReelPose('');
+                                setNewReelCaption('');
+                                setNewReelUrl('');
+                                setNewReelThumbnailUrl('');
+                                setShowAdminEmbedTest(false);
+                              }}
+                              className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          )}
                         </div>
-                      </>
-                    )}
-                  </div>
-                )}
+                      </form>
+
+                      {/* Reels Directory Listing */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                          <span>Saved Reels ({reels.length})</span>
+                          <span>Order: Most Recent First</span>
+                        </div>
+
+                        {reels.length === 0 ? (
+                          <div className="p-8 rounded-2xl bg-[#140E26] border border-purple-500/15 text-center">
+                            <InstagramIcon className="w-8 h-8 text-purple-400 mx-auto mb-2 opacity-50" />
+                            <p className="text-xs text-slate-400">No Instagram Reels saved yet. Add your first Reel above!</p>
+                          </div>
+                        ) : (
+                          reels.map((reel) => {
+                            const parsed = parseInstagramUrl(reel.reelUrl);
+                            return (
+                              <div
+                                key={reel.id}
+                                className="p-4 rounded-xl bg-[#140E26] border border-purple-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-purple-500/30 transition-colors"
+                              >
+                                <div className="flex items-center gap-3.5 min-w-0">
+                                  {/* Poster thumbnail or branded fallback */}
+                                  {reel.thumbnailUrl ? (
+                                    <img
+                                      src={reel.thumbnailUrl}
+                                      alt={reel.poseName}
+                                      className="w-12 h-16 rounded-lg object-cover border border-purple-400/20 shrink-0"
+                                    />
+                                  ) : (
+                                    <div className="w-12 h-16 rounded-lg bg-gradient-to-br from-purple-950 to-indigo-950 border border-purple-400/20 flex flex-col items-center justify-center text-purple-300 shrink-0 p-1">
+                                      <InstagramIcon className="w-5 h-5 mb-0.5" />
+                                      <span className="text-[8px] font-mono text-center">IG Reel</span>
+                                    </div>
+                                  )}
+
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="text-sm font-semibold text-white truncate">{reel.poseName}</h5>
+                                      {parsed.ok && (
+                                        <span className="px-1.5 py-0.5 rounded bg-purple-950/80 border border-purple-500/30 text-[10px] font-mono text-purple-300">
+                                          {parsed.shortcode}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-slate-400 truncate max-w-md">{reel.caption}</p>
+                                    <span className="text-[11px] text-purple-300/80 font-mono block mt-0.5">
+                                      {reel.likesCount} likes • {reel.duration} • @{reel.creatorHandle}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                                  {/* Preview Modal Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setAdminPreviewReel(reel)}
+                                    className="px-2.5 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/40 text-purple-200 border border-purple-500/30 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                    title="Preview Reel Player Modal"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>Preview</span>
+                                  </button>
+
+                                  {/* Open in Instagram link */}
+                                  {reel.reelUrl && (
+                                    <a
+                                      href={reel.reelUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                                      title="Open on Instagram"
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+
+                                  {/* Edit Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingReel(reel);
+                                      setNewReelPose(reel.poseName);
+                                      setNewReelCaption(reel.caption);
+                                      setNewReelLikes(reel.likesCount);
+                                      setNewReelDuration(reel.duration);
+                                      setNewReelAudio(reel.audioTrack);
+                                      setNewReelUrl(reel.reelUrl || '');
+                                      setNewReelThumbnailUrl(reel.thumbnailUrl || '');
+                                    }}
+                                    className="p-2 rounded-lg bg-purple-950/40 text-purple-300 hover:text-white"
+                                    title="Edit Reel"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  {/* Delete Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteReel(reel.id)}
+                                    className="p-2 rounded-lg bg-rose-950/40 text-rose-300 hover:text-white"
+                                    title="Delete Reel"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* -------------------------------------------------------- */}
                 {/* 6. SERVICES ("WORK WITH ME") */}
@@ -2961,6 +3143,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </>
         )}
       </motion.div>
+
+      {/* In-Admin Instagram Reel Player Preview Modal */}
+      {adminPreviewReel && (
+        <InstagramReelModal
+          reel={adminPreviewReel}
+          onClose={() => setAdminPreviewReel(null)}
+        />
+      )}
     </div>
   );
 };

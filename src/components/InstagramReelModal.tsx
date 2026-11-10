@@ -13,6 +13,7 @@ import {
   Sparkles,
   Share2,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { InstagramIcon } from './Icons';
 import { InstagramEmbed } from './InstagramEmbed';
@@ -104,23 +105,18 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
     }
   };
 
+  const [remountKey, setRemountKey] = useState(0);
+
   // Keyboard Escape listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === ' ' || e.code === 'Space') {
-        if (videoRef.current) {
-          e.preventDefault();
-          togglePlay();
-        }
-      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   if (!reel) return null;
-
 
   const nativeInstagramUrl =
     reel.reelUrl ||
@@ -129,33 +125,44 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/90 backdrop-blur-xl"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/92 backdrop-blur-xl animate-fade-in"
     >
       <motion.div
         onClick={(e) => e.stopPropagation()}
-        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 20 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-        className="relative w-full max-w-[390px] sm:max-w-[440px] h-[90vh] max-h-[840px] rounded-[2.5rem] bg-[#0E0A1D] text-white overflow-hidden border border-purple-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col justify-between select-none"
+        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+        className="relative w-full max-w-[500px] h-[92vh] max-h-[880px] rounded-[2rem] bg-[#0E0A1D] text-white overflow-hidden border border-purple-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.95)] flex flex-col justify-between select-none"
       >
         {/* Top Floating Header with Actions */}
-        <div className="absolute top-0 inset-x-0 z-40 p-4 sm:p-5 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/50 to-transparent pointer-events-auto">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white p-1.5 shadow-md">
+        <div className="shrink-0 z-40 px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between bg-gradient-to-b from-[#140E2A] via-[#100B22] to-transparent border-b border-purple-500/15 pointer-events-auto">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white p-1.5 shadow-md shrink-0">
               <InstagramIcon className="w-full h-full" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-[11px] font-bold tracking-wider text-purple-200 uppercase leading-none">
-                Asana Reel
+            <div className="flex flex-col min-w-0">
+              <span className="text-[11px] font-bold tracking-wider text-purple-200 uppercase leading-none truncate">
+                {reel.poseName || 'Asana Reel'}
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">
+              <span className="text-[10px] text-slate-400 font-mono truncate">
                 @{reel.creatorHandle || 'supriya_9508'}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Quick In-Modal Replay */}
+            <button
+              type="button"
+              onClick={() => setRemountKey((k) => k + 1)}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition-colors cursor-pointer"
+              title="Replay / Reload Reel"
+              aria-label="Replay Reel"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+
             {/* Direct Link to Open on Instagram */}
             {nativeInstagramUrl && (
               <a
@@ -163,7 +170,7 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 hover:bg-purple-600 text-white border border-white/20 text-[10px] font-semibold transition-all backdrop-blur-md shadow-xs cursor-pointer"
-                title="Open on official Instagram app"
+                title="Open on official Instagram"
               >
                 <span>IG</span>
                 <ExternalLink className="w-3 h-3 opacity-80" />
@@ -183,14 +190,15 @@ export const InstagramReelModal: React.FC<InstagramReelModalProps> = ({
         </div>
 
         {/* =========================================================================
-            VIDEO STAGE: Exclusively Instagram Player (Direct Meta Embed System)
+            VIDEO STAGE: Instagram Player (Direct Meta Embed System)
            ========================================================================= */}
-        <div className="relative flex-grow w-full h-full bg-[#0B0914] overflow-hidden flex items-center justify-center pt-16 pb-4 px-3">
-          <div className="w-full h-full flex flex-col items-center justify-start overflow-y-auto no-scrollbar">
-            <InstagramEmbed key={reel.id} url={reel.reelUrl} />
+        <div className="relative flex-grow w-full h-full bg-[#080611] overflow-y-auto no-scrollbar flex items-start justify-center p-2 sm:p-4">
+          <div className="w-full max-w-[480px] flex flex-col items-center justify-start my-auto">
+            <InstagramEmbed key={`${reel.id}-${remountKey}`} url={reel.reelUrl} />
           </div>
         </div>
       </motion.div>
     </div>
   );
 };
+
