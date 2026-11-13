@@ -633,7 +633,7 @@ export async function getReels(): Promise<InstagramReel[]> {
         tags: item.tags && item.tags.length > 0 ? item.tags : fallback.tags,
         date: item.date || fallback.date,
         reelUrl: validReelUrl,
-        videoUrl: undefined,
+        videoUrl: item.video_url || item.videoUrl || fallback.videoUrl || undefined,
         thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || fallback.thumbnailUrl,
       };
     });
@@ -668,6 +668,7 @@ export async function upsertReel(reel: InstagramReel): Promise<void> {
       tags: reel.tags,
       date: reel.date,
       reel_url: reel.reelUrl || null,
+      video_url: reel.videoUrl || null,
       thumbnail_url: reel.thumbnailUrl || null,
     });
   } catch (err) {

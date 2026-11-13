@@ -9,8 +9,10 @@ import {
   Music,
   ChevronDown,
   ChevronUp,
+  MessageCircle,
 } from 'lucide-react';
 import { InstagramIcon } from './Icons';
+import { resolveReelThumbnail } from '../lib/instagram';
 
 interface AsanaReelsSectionProps {
   reels: InstagramReel[];
@@ -112,7 +114,8 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
                   );
                   const currentLikes = likeCounts[reel.id] ?? baseCount;
                   const displayLikes = (currentLikes / 1000).toFixed(1) + 'K';
-                  const hasThumbnail = Boolean(reel.thumbnailUrl && !imgErrorMap[reel.id]);
+                  const thumbnailSrc = resolveReelThumbnail(reel);
+                  const hasThumbnail = Boolean(thumbnailSrc && !imgErrorMap[reel.id]);
 
                   return (
                     <motion.div
@@ -125,10 +128,10 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
                       onClick={() => onSelectReel(reel)}
                       className="group relative rounded-3xl overflow-hidden aspect-[9/16] bg-[#120D24] border border-purple-500/20 hover:border-purple-400/50 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:shadow-[0_20px_50px_rgba(168,85,247,0.3)] transition-all cursor-pointer flex flex-col justify-between p-4"
                     >
-                      {/* Background Poster Image or Dynamic Gradient */}
+                      {/* Background Poster Image with fallback */}
                       {hasThumbnail ? (
                         <img
-                          src={reel.thumbnailUrl}
+                          src={thumbnailSrc}
                           alt={reel.poseName}
                           onError={() => setImgErrorMap((prev) => ({ ...prev, [reel.id]: true }))}
                           draggable={false}
@@ -141,8 +144,8 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
                             reel.gradient || 'from-purple-950 via-slate-900 to-indigo-950'
                           } flex flex-col items-center justify-center p-4 text-center`}
                         >
-                          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-purple-400/20 flex items-center justify-center text-purple-300 mb-2">
-                            <InstagramIcon className="w-7 h-7" />
+                          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-purple-400/20 flex items-center justify-center text-purple-300 mb-2">
+                            <InstagramIcon className="w-6 h-6" />
                           </div>
                           <span className="text-xs font-semibold text-purple-200 line-clamp-2">
                             {reel.poseName}
@@ -175,10 +178,10 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
                         </button>
                       </div>
 
-                      {/* Center Hover Play Button */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 bg-black/25">
-                        <div className="w-13 h-13 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-[#0B0914] shadow-2xl group-hover:scale-110 transition-transform">
-                          <Play className="w-6 h-6 fill-current ml-0.5" />
+                      {/* Center Subtle Play Indicator */}
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                        <div className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/90 shadow-lg group-hover:scale-110 group-hover:bg-purple-600/80 group-hover:border-purple-400/50 transition-all">
+                          <Play className="w-4 h-4 fill-current ml-0.5" />
                         </div>
                       </div>
 
@@ -194,10 +197,18 @@ export const AsanaReelsSection: React.FC<AsanaReelsSectionProps> = ({
                         </p>
 
                         <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-slate-300">
-                          <span className="flex items-center gap-1 font-mono">
-                            <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
-                            <span>{displayLikes}</span>
-                          </span>
+                          <div className="flex items-center gap-2.5 font-mono text-[10px]">
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                              <span>{displayLikes}</span>
+                            </span>
+                            {reel.commentsCount && (
+                              <span className="flex items-center gap-1 text-slate-400">
+                                <MessageCircle className="w-3 h-3 text-purple-400" />
+                                <span>{reel.commentsCount}</span>
+                              </span>
+                            )}
+                          </div>
 
                           <span className="flex items-center gap-1 text-[10px] text-purple-300/80">
                             <Music className="w-2.5 h-2.5" />

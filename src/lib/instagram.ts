@@ -120,3 +120,55 @@ export function isInstagramUrl(url?: string | null): boolean {
   return parseInstagramUrl(url).ok;
 }
 
+/**
+ * Curated high-resolution fallback previews for standard yoga reels
+ * when Instagram does not expose a public image without an oEmbed client token.
+ */
+const KNOWN_REEL_PREVIEWS: Record<string, string> = {
+  C8qLd95M6P1: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80',
+  C7pKd89x2Z9: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+  C6oLk11z8X4: 'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=800&q=80',
+  C5mLp92M4Q8: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=800&q=80',
+};
+
+const GENERIC_YOGA_FALLBACKS = [
+  'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&w=800&q=80',
+];
+
+/**
+ * Resolves a thumbnail image URL for an Instagram Reel.
+ * 1. Checks if explicit thumbnailUrl is valid.
+ * 2. Checks known shortcodes.
+ * 3. Uses a deterministic hash fallback based on the URL so each Reel has a distinct image.
+ */
+export function resolveReelThumbnail(reel?: {
+  reelUrl?: string;
+  thumbnailUrl?: string;
+  id?: string;
+}): string {
+  if (reel?.thumbnailUrl && reel.thumbnailUrl.trim().startsWith('http')) {
+    return reel.thumbnailUrl.trim();
+  }
+
+  const parsed = parseInstagramUrl(reel?.reelUrl);
+  if (parsed.ok && KNOWN_REEL_PREVIEWS[parsed.shortcode]) {
+    return KNOWN_REEL_PREVIEWS[parsed.shortcode];
+  }
+
+  // Deterministic fallback based on shortcode or id
+  const seed = parsed.ok ? parsed.shortcode : reel?.id || 'default';
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash << 5) - hash + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % GENERIC_YOGA_FALLBACKS.length;
+  return GENERIC_YOGA_FALLBACKS[index];
+}
+
+

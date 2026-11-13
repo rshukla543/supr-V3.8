@@ -452,8 +452,8 @@ ON CONFLICT (id) DO UPDATE SET
     tags = EXCLUDED.tags,
     custom_thumbnail = EXCLUDED.custom_thumbnail;
 
--- Also seed public.instagram_reels table
-INSERT INTO public.instagram_reels (id, caption, creator_handle, audio_track, likes_count, comments_count, shares_count, views_count, duration, reel_url, gradient, cover_accent, pose_name, tags, date)
+-- Also seed public.instagram_reels table (with direct video playback & video frame thumbnails)
+INSERT INTO public.instagram_reels (id, caption, creator_handle, audio_track, likes_count, comments_count, shares_count, views_count, duration, reel_url, video_url, thumbnail_url, gradient, cover_accent, pose_name, tags, date)
 VALUES
 (
     'reel-1',
@@ -466,6 +466,8 @@ VALUES
     '780K views',
     '0:42',
     'https://www.instagram.com/reel/C8qLd95M6P1/',
+    '/videos/sample.mp4',
+    'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=600&q=80',
     'from-violet-900 via-indigo-950 to-midnight-950',
     '#C084FC',
     'Adho Mukha Svanasana Fix',
@@ -483,6 +485,8 @@ VALUES
     '940K views',
     '0:55',
     'https://www.instagram.com/reel/C7pKd89x2Z9/',
+    '/videos/sample.mp4',
+    'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80',
     'from-purple-900 via-violet-950 to-midnight-950',
     '#F59E0B',
     'Vagal Nerve Reset',
@@ -500,6 +504,8 @@ VALUES
     '510K views',
     '0:50',
     'https://www.instagram.com/reel/C6oLk11z8X4/',
+    '/videos/sample.mp4',
+    'https://images.unsplash.com/photo-1512290900672-1f02176eecdf?auto=format&fit=crop&w=600&q=80',
     'from-indigo-900 via-purple-950 to-midnight-950',
     '#FBBF24',
     'Plant Vitality Meal',
@@ -517,6 +523,8 @@ VALUES
     '1.4M views',
     '0:38',
     'https://www.instagram.com/reel/C5mLp92M4Q8/',
+    '/videos/sample.mp4',
+    'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=600&q=80',
     'from-violet-950 via-purple-900 to-midnight-950',
     '#C084FC',
     'Spinal Awakening Flow',
@@ -533,6 +541,8 @@ ON CONFLICT (id) DO UPDATE SET
     views_count = EXCLUDED.views_count,
     duration = EXCLUDED.duration,
     reel_url = EXCLUDED.reel_url,
+    video_url = EXCLUDED.video_url,
+    thumbnail_url = EXCLUDED.thumbnail_url,
     gradient = EXCLUDED.gradient,
     cover_accent = EXCLUDED.cover_accent,
     pose_name = EXCLUDED.pose_name,

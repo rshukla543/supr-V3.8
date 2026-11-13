@@ -294,6 +294,8 @@ export function App() {
         {selectedReel && (
           <InstagramReelModal
             reel={selectedReel}
+            reels={reels}
+            onSelectReel={setSelectedReel}
             onClose={() => setSelectedReel(null)}
           />
         )}
